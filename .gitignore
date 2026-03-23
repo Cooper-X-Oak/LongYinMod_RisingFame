@@ -1,0 +1,10 @@
+bin/
+obj/
+.tools/
+.tmp-template-1/
+*.user
+*.suo
+.vs/
+.idea/
+GameInspector/
+Inspector/
