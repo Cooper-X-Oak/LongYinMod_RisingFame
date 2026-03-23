@@ -1,5 +1,4 @@
 using BepInEx;
-using BepInEx.Configuration;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
@@ -7,7 +6,7 @@ using UnityEngine;
 
 namespace RisingFame;
 
-[BepInPlugin("com.luoxu.longyin.risingfame", "RisingFame - MingYangTianXia", "1.4.0")]
+[BepInPlugin("com.luoxu.longyin.risingfame", "RisingFame - MingYangTianXia", "1.5.0")]
 public class Plugin : BasePlugin
 {
     internal static new ManualLogSource Log = null!;
@@ -15,13 +14,13 @@ public class Plugin : BasePlugin
     // ---- Mod ON/OFF ----
     internal static bool Enabled = true;
 
-    // Dynamic multiplier: 2 * (heroForceLv + 1)
-    // 武者=x2, 游侠=x4, 豪杰=x6, 大侠=x8, 名家=x10, 宗师=x12
+    // Dynamic multiplier: 1 * (heroForceLv + 1)
+    // 武者=x1, 游侠=x2, 豪杰=x3, 大侠=x4, 名家=x5, 宗师=x6
     internal static float GetMultiplier(HeroData hero)
     {
         if (!Enabled) return 1f;
         int lv = hero.heroForceLv + 1; // 1-6
-        return 2f * lv;
+        return lv;
     }
 
     // ---- Input ----
@@ -67,13 +66,26 @@ public class Plugin : BasePlugin
             prefix: new HarmonyMethod(typeof(ContributionPatches), nameof(ContributionPatches.ChangeGovernContribution_Pre)),
             name: "HeroData.ChangeGovernContribution");
 
+        // Book writing: speed x10, cost /10
+        TryPatch(harmony, AccessTools.Method(typeof(BookWriterData), "GetEachDayWorkPercent"),
+            postfix: new HarmonyMethod(typeof(BookWriterPatches), nameof(BookWriterPatches.GetEachDayWorkPercent_Post)),
+            name: "BookWriterData.GetEachDayWorkPercent");
+
+        TryPatch(harmony, AccessTools.Method(typeof(BookWriterData), "GetMoneyCost"),
+            postfix: new HarmonyMethod(typeof(BookWriterPatches), nameof(BookWriterPatches.GetMoneyCost_Post)),
+            name: "BookWriterData.GetMoneyCost");
+
+        TryPatch(harmony, AccessTools.Method(typeof(BookWriterData), "GetTotalTimeCost"),
+            postfix: new HarmonyMethod(typeof(BookWriterPatches), nameof(BookWriterPatches.GetTotalTimeCost_Post)),
+            name: "BookWriterData.GetTotalTimeCost");
+
         // Input polling
         TryPatch(harmony, AccessTools.Method(typeof(Camera), "FireOnPostRender", new[] { typeof(Camera) }),
             postfix: new HarmonyMethod(typeof(Plugin), nameof(PollInput)),
             name: "Camera.FireOnPostRender (input)");
 
-        Log.LogInfo("RisingFame (MingYangTianXia) v1.4.0 loaded. Mod ON. Press '=' to toggle ON/OFF.");
-        Log.LogInfo("Exp/Favor: x(2*heroLv). Contribution: (heroLv + fame/1000)");
+        Log.LogInfo("RisingFame (MingYangTianXia) v1.5.0 loaded. Mod ON. Press '=' to toggle ON/OFF.");
+        Log.LogInfo("Exp/Favor: x(heroLv). Contribution: (heroLv + fame/1000). BookWrite: speed x10, cost /10");
     }
 
     void TryPatch(Harmony harmony, System.Reflection.MethodInfo? target,
@@ -94,8 +106,7 @@ public class Plugin : BasePlugin
 
             CheckKey(KeyCode.Equals, ref _eqHeld, () => {
                 Enabled = !Enabled;
-                Log.LogInfo($"[RisingFame] {(Enabled ? "ON (2*heroLv)" : "OFF (x1)")}");
-                // High pitch = ON, low pitch = OFF, run async to avoid blocking
+                Log.LogInfo($"[RisingFame] {(Enabled ? "ON (heroLv)" : "OFF (x1)")}");
                 System.Threading.ThreadPool.QueueUserWorkItem(_ => {
                     try { if (Enabled) { Beep(1200, 80); Beep(1600, 80); } else { Beep(800, 80); Beep(400, 80); } } catch { }
                 });
@@ -181,5 +192,30 @@ static class ContributionPatches
             }
         }
         catch { }
+    }
+}
+
+[HarmonyPatch]
+static class BookWriterPatches
+{
+    // Speed up book writing: each day progress x10
+    public static void GetEachDayWorkPercent_Post(ref float __result)
+    {
+        if (!Plugin.Enabled) return;
+        __result *= 10f;
+    }
+
+    // Reduce money cost to 1/10
+    public static void GetMoneyCost_Post(ref int __result)
+    {
+        if (!Plugin.Enabled) return;
+        __result = System.Math.Max(__result / 10, 1);
+    }
+
+    // Reduce time cost display to 1/10
+    public static void GetTotalTimeCost_Post(ref int __result)
+    {
+        if (!Plugin.Enabled) return;
+        __result = System.Math.Max(__result / 10, 1);
     }
 }
