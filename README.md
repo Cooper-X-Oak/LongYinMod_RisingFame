@@ -1,86 +1,90 @@
 # 名扬天下 RisingFame
 
-龙胤立志传 (LongYinLiZhiZhuan) 的 BepInEx Mod，通过动态倍率减少重复劳动，让你专注于剧情和策略。
+> 龙胤立志传护肝Mod —— 倍率随等级成长，越玩越爽，告别无意义重复。
 
-A BepInEx mod for 龙胤立志传 that dynamically scales progression rates based on hero rank, reducing grind while preserving game balance.
+## 快速安装（3步搞定）
 
-## Features
+1. **安装 BepInEx 6**：从 [这里下载](https://builds.bepinex.dev/projects/bepinex_be) IL2CPP 版，解压到游戏根目录，启动一次游戏再关闭
+2. **下载 Mod**：从 [Releases 页面](../../releases) 下载 `RisingFame.dll`
+3. **放入插件目录**：把 `RisingFame.dll` 丢进游戏目录下的 `BepInEx/plugins/` 文件夹
 
-### Dynamic Exp & Favor Multiplier — `2 × heroRank`
+启动游戏，Mod 自动生效。按 **`=`** 键可随时开关（有声音提示）。
 
-| Rank | Title | Multiplier |
-|------|-------|------------|
-| 1 | 武者 | x2 |
-| 2 | 游侠 | x4 |
-| 3 | 豪杰 | x6 |
-| 4 | 大侠 | x8 |
-| 5 | 名家 | x10 |
-| 6 | 宗师 | x12 |
+## 效果一览
 
-Applies to:
-- **ReadBook Exp** (读书经验) — `HeroData.GetBookExpRate` postfix
-- **Fight Exp** (实战经验) — `HeroData.AddSkillFightExp` prefix
-- **Favor** (好感度) — `HeroData.ChangeFavor` prefix (positive gains only)
+### 读书经验 / 实战经验 / 好感度
 
-### Dynamic Contribution Multiplier — `heroRank + fame/1000`
+倍率 = **2 × 人物等级**，等级越高加速越明显：
 
-| Type | Formula | Example (Rank 3, Fame 2000) |
-|------|---------|----------------------------|
-| Inner Force (内门派) | `(rank + fame/1000) × 0.5` | x2.5 |
-| Outer Force (外门派) | `rank + fame/1000` | x5.0 |
-| Govern (治理) | `rank + fame/1000` | x5.0 |
+| 等级  | 称号  | 读书经验 | 实战经验 | 好感度 |
+| --- | --- | ---- | ---- | --- |
+| 1   | 武者  | x2   | x2   | x2  |
+| 2   | 游侠  | x4   | x4   | x4  |
+| 3   | 豪杰  | x6   | x6   | x6  |
+| 4   | 大侠  | x8   | x8   | x8  |
+| 5   | 名家  | x10  | x10  | x10 |
+| 6   | 宗师  | x12  | x12  | x12 |
 
-Applies to:
-- **Force Contribution** (门派功绩) — `HeroData.ChangeForceContribution` prefix
-- **Govern Contribution** (治理功绩) — `HeroData.ChangeGovernContribution` prefix
+### 门派功绩
 
-### Toggle
+倍率 = **人物等级 + 声望÷1000**，声望越高功绩获取越快：
 
-Press **`=`** to toggle the mod ON/OFF at any time.
-- ON: ascending beep (1200→1600 Hz)
-- OFF: descending beep (800→400 Hz)
+| 等级  | 声望 500 | 声望 1000 | 声望 2000 | 声望 5000 |
+| --- | ------ | ------- | ------- | ------- |
+| 武者  | x1.5   | x2.0    | x3.0    | x6.0    |
+| 游侠  | x2.5   | x3.0    | x4.0    | x7.0    |
+| 豪杰  | x3.5   | x4.0    | x5.0    | x8.0    |
+| 大侠  | x4.5   | x5.0    | x6.0    | x9.0    |
+| 名家  | x5.5   | x6.0    | x7.0    | x10.0   |
+| 宗师  | x6.5   | x7.0    | x8.0    | x11.0   |
 
-Mod is **ON by default** when the game starts.
+> 内门派功绩在此基础上 ×0.5（避免影响剧情进度）
 
-## Requirements
+### 开关操作
 
-- 龙胤立志传 (Steam)
-- [BepInEx 6 IL2CPP (bleeding edge)](https://builds.bepinex.dev/projects/bepinex_be) — build 755 or later
-- Windows (uses kernel32 Beep for audio feedback)
+| 按键  | 功能     | 提示音       |
+| --- | ------ | --------- |
+| `=` | 开启 Mod | 升调 🔊 嘟嘟↑ |
+| `=` | 关闭 Mod | 降调 🔊 嘟嘟↓ |
 
-## Installation
+默认开启，无需手动操作。
 
-### From Release
+## 常见问题
 
-1. Download `RisingFame.dll` from [Releases](../../releases)
-2. Copy to `<game>/BepInEx/plugins/`
-3. Launch the game
+**Q: 装了没效果？**
+A: 确认 BepInEx 已正确安装（游戏目录下应有 `BepInEx/` 文件夹），DLL 放在 `BepInEx/plugins/` 里。
 
-### Build from Source
+**Q: 会影响存档吗？**
+A: 不会修改存档文件，随时可以移除 DLL 恢复原版。
+
+**Q: 和其他 Mod 冲突吗？**
+A: 一般不会，如果遇到问题请提 Issue。
+
+## 从源码构建（开发者）
+
+<details>
+<summary>点击展开</summary>
 
 ```powershell
-# Auto-downloads .NET SDK 8.0 to .tools/ and builds
+# 自动下载 .NET SDK 并构建
 .\build.ps1
 
-# Copy DLL to game plugins folder
+# 复制到游戏目录
 .\install-to-game.ps1
 ```
 
-Or manually:
+或手动：
 
 ```bash
 dotnet build -c Release
-# Output: bin/Release/net6.0/RisingFame.dll
+# 输出: bin/Release/net6.0/RisingFame.dll
 ```
 
-> **Note**: Building requires the game's BepInEx interop DLLs. Update `GameInteropDir` in the `.csproj` if your game is installed in a different path.
+> 构建需要游戏的 BepInEx interop DLL。如果游戏安装在其他路径，修改 `.csproj` 中的 `GameInteropDir`。
 
-## Technical Details
+**技术栈**: BepInEx 6.0.0-be.755 + Harmony, .NET 6.0 CoreCLR, Unity 2020.3.48f1c1 IL2CPP
 
-- **Framework**: BepInEx 6.0.0-be.755 + Harmony
-- **Runtime**: .NET 6.0 (CoreCLR) on Unity 2020.3.48f1c1 IL2CPP
-- **Input**: Polled via `Camera.FireOnPostRender` Harmony postfix with `Time.frameCount` deduplication
-- **No disk I/O on hotkey**: Multiplier state is held in memory only — avoids `ConfigEntry` write freezes
+</details>
 
 ## License
 
