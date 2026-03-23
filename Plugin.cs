@@ -14,13 +14,12 @@ public class Plugin : BasePlugin
     // ---- Mod ON/OFF ----
     internal static bool Enabled = true;
 
-    // Dynamic multiplier: 1 * (heroForceLv + 1)
-    // 武者=x1, 游侠=x2, 豪杰=x3, 大侠=x4, 名家=x5, 宗师=x6
+    // Dynamic multiplier: 1 + heroForceLv * 0.5
+    // 武者=x1, 游侠=x1.5, 豪杰=x2, 大侠=x2.5, 名家=x3, 宗师=x3.5
     internal static float GetMultiplier(HeroData hero)
     {
         if (!Enabled) return 1f;
-        int lv = hero.heroForceLv + 1; // 1-6
-        return lv;
+        return 1f + hero.heroForceLv * 0.5f;
     }
 
     // ---- Input ----
