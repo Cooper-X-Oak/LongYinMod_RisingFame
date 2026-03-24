@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace RisingFame;
 
-[BepInPlugin("com.luoxu.longyin.risingfame", "RisingFame - MingYangTianXia", "1.5.3")]
+[BepInPlugin("com.luoxu.longyin.risingfame", "RisingFame - MingYangTianXia", "1.5.9")]
 public class Plugin : BasePlugin
 {
     internal static new ManualLogSource Log = null!;
@@ -19,11 +19,18 @@ public class Plugin : BasePlugin
     static float _nextToggleTime;
     static int _lastPollFrame = -1;
 
-    // Dynamic multiplier: rank1=x1.5, each rank +0.5 (rank6=x4.0)
-    internal static float GetMultiplier(HeroData hero)
+    // Exp multiplier: rank1=x3.0, each rank +0.5 (rank6=x5.5)
+    internal static float GetExpMultiplier(HeroData hero)
     {
         if (!Enabled) return 1f;
-        return 1.5f + 0.5f * hero.heroForceLv;
+        return Math.Max(3.0f + 0.5f * hero.heroForceLv, 1f);
+    }
+
+    // Favor multiplier: rank1=x1.5, each rank +0.5 (rank6=x4.0)
+    internal static float GetFavorMultiplier(HeroData hero)
+    {
+        if (!Enabled) return 1f;
+        return Math.Max(1.5f + 0.5f * hero.heroForceLv, 1f);
     }
 
     // ---- Beep via Windows API ----
@@ -36,16 +43,33 @@ public class Plugin : BasePlugin
 
         var harmony = new Harmony("com.luoxu.longyin.risingfame");
 
-        // ReadBook exp rate
+        // ReadBook exp rate (for UI/theoretical display consistency)
         TryPatch(harmony, AccessTools.Method(typeof(HeroData), "GetBookExpRate", new[] { typeof(KungfuSkillLvData) }),
-            postfix: new HarmonyMethod(typeof(ExpPatches), nameof(ExpPatches.MultiplyExp)),
+            postfix: new HarmonyMethod(typeof(ExpPatches), nameof(ExpPatches.MultiplyExpRate)),
             name: "HeroData.GetBookExpRate");
+
+        // Study/battle fight exp rate (for UI/theoretical display consistency)
+        TryPatch(harmony, AccessTools.Method(typeof(HeroData), "GetFightExpRate", new[] { typeof(KungfuSkillLvData) }),
+            postfix: new HarmonyMethod(typeof(ExpPatches), nameof(ExpPatches.MultiplyExpRate)),
+            name: "HeroData.GetFightExpRate");
+
+        // ReadBook real gain
+        TryPatch(harmony, AccessTools.Method(typeof(HeroData), "AddSkillBookExp",
+                new[] { typeof(float), typeof(KungfuSkillLvData), typeof(bool) }),
+            prefix: new HarmonyMethod(typeof(FightExpPatches), nameof(FightExpPatches.AddSkillBookExp_Pre)),
+            name: "HeroData.AddSkillBookExp");
 
         // Combat/fight exp
         TryPatch(harmony, AccessTools.Method(typeof(HeroData), "AddSkillFightExp",
                 new[] { typeof(float), typeof(KungfuSkillLvData), typeof(bool) }),
             prefix: new HarmonyMethod(typeof(FightExpPatches), nameof(FightExpPatches.AddSkillFightExp_Pre)),
             name: "HeroData.AddSkillFightExp");
+
+        // Some combat paths use this entrypoint instead of AddSkillFightExp
+        TryPatch(harmony, AccessTools.Method(typeof(HeroData), "BattleChangeSkillFightExp",
+                new[] { typeof(float), typeof(KungfuSkillLvData), typeof(bool) }),
+            prefix: new HarmonyMethod(typeof(FightExpPatches), nameof(FightExpPatches.BattleChangeSkillFightExp_Pre)),
+            name: "HeroData.BattleChangeSkillFightExp");
 
         // Favor
         TryPatch(harmony, AccessTools.Method(typeof(HeroData), "ChangeFavor",
@@ -83,8 +107,8 @@ public class Plugin : BasePlugin
             postfix: new HarmonyMethod(typeof(Plugin), nameof(PollInput)),
             name: "Camera.FireOnPostRender (input)");
 
-        Log.LogInfo("RisingFame v1.5.3 loaded. Mod ON. Press '=' to toggle.");
-        Log.LogInfo("Multiplier: rank1 x1.5, +0.5 per rank. Contribution enabled. BookWrite: speed x10, cost/time /10.");
+        Log.LogInfo("RisingFame v1.5.9 loaded. Mod ON. Press '=' to toggle.");
+        Log.LogInfo("Exp: rank1 x3.0, +0.5/rank. Favor: rank1 x1.5, +0.5/rank. Contribution enabled. BookWrite: speed x10, cost/time /10.");
     }
 
     void TryPatch(Harmony harmony, System.Reflection.MethodInfo? target,
@@ -138,22 +162,40 @@ public class Plugin : BasePlugin
 [HarmonyPatch]
 static class ExpPatches
 {
-    public static void MultiplyExp(HeroData __instance, ref float __result)
+    public static void MultiplyExpRate(HeroData __instance, ref float __result)
     {
-        float m = Plugin.GetMultiplier(__instance);
-        if (m > 1f)
-            __result *= m;
+        if (__result <= 0f) return;
+        float m = Plugin.GetExpMultiplier(__instance);
+        if (m <= 1f) return;
+        __result *= m;
     }
 }
 
 [HarmonyPatch]
 static class FightExpPatches
 {
+    public static void AddSkillBookExp_Pre(HeroData __instance, ref float __0)
+    {
+        if (__0 <= 0f) return;
+        float m = Plugin.GetExpMultiplier(__instance);
+        if (m <= 1f) return;
+        __0 *= m;
+    }
+
     public static void AddSkillFightExp_Pre(HeroData __instance, ref float __0)
     {
-        float m = Plugin.GetMultiplier(__instance);
-        if (m > 1f)
-            __0 *= m;
+        if (__0 <= 0f) return;
+        float m = Plugin.GetExpMultiplier(__instance);
+        if (m <= 1f) return;
+        __0 *= m;
+    }
+
+    public static void BattleChangeSkillFightExp_Pre(HeroData __instance, ref float __0)
+    {
+        if (__0 <= 0f) return;
+        float m = Plugin.GetExpMultiplier(__instance);
+        if (m <= 1f) return;
+        __0 *= m;
     }
 }
 
@@ -162,9 +204,10 @@ static class FavorPatches
 {
     public static void ChangeFavor_Pre(HeroData __instance, ref float __0)
     {
-        float m = Plugin.GetMultiplier(__instance);
-        if (__0 > 0f && m > 1f)
-            __0 *= m;
+        if (__0 <= 0f) return;
+        float m = Plugin.GetFavorMultiplier(__instance);
+        if (m <= 1f) return;
+        __0 *= m;
     }
 }
 
@@ -180,10 +223,7 @@ static class ContributionPatches
             float fame = __instance.fame;
             bool isInner = (__2 == __instance.belongForceID);
             float rate = isInner ? (lv + fame / 1000f) * 0.5f : lv + fame / 1000f;
-            if (rate > 1f)
-            {
-                __0 *= rate;
-            }
+            __0 = Math.Max(__0, 1f) * Math.Max(rate, 1f);
         }
         catch { }
     }
@@ -196,10 +236,7 @@ static class ContributionPatches
             int lv = __instance.heroForceLv + 1;
             float fame = __instance.fame;
             float rate = lv + fame / 1000f;
-            if (rate > 1f)
-            {
-                __0 *= rate;
-            }
+            __0 = Math.Max(__0, 1f) * Math.Max(rate, 1f);
         }
         catch { }
     }
