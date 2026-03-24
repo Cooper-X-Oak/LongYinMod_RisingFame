@@ -10,7 +10,7 @@
 ![Runtime](https://img.shields.io/badge/runtime-Unity%20IL2CPP-ffb000)
 ![BepInEx](https://img.shields.io/badge/BepInEx-6.0.0--be.755%2B3fab71a-6f42c1)
 
-[下载发布版](https://github.com/Cooper-X-Oak/LongYinMod_RisingFame/releases/latest) · [快速安装](#快速安装) · [问题反馈](https://github.com/Cooper-X-Oak/LongYinMod_RisingFame/issues/new/choose)
+[下载发布版](https://github.com/Cooper-X-Oak/LongYinMod_RisingFame/releases/latest) · [更新记录](./CHANGELOG.md) · [快速安装](#快速安装) · [问题反馈](https://github.com/Cooper-X-Oak/LongYinMod_RisingFame/issues/new/choose)
 
 ![RisingFame cover](./assets/cover.svg)
 
