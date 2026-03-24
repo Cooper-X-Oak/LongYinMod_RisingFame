@@ -1,0 +1,70 @@
+<svg width="1280" height="640" viewBox="0 0 1280 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="90" y1="60" x2="1180" y2="590" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#201A17"/>
+      <stop offset="0.45" stop-color="#4A2D24"/>
+      <stop offset="1" stop-color="#C79252"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="168" y1="126" x2="908" y2="514" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F5EBD5" stop-opacity="0.96"/>
+      <stop offset="1" stop-color="#E2C79A" stop-opacity="0.92"/>
+    </linearGradient>
+    <linearGradient id="chip" x1="0" y1="0" x2="220" y2="52" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2F221B"/>
+      <stop offset="1" stop-color="#5B3A22"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(980 210) rotate(140) scale(290 290)">
+      <stop stop-color="#FFE5A8" stop-opacity="0.82"/>
+      <stop offset="1" stop-color="#FFE5A8" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="120" y="82" width="808" height="476" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="16"/>
+      <feGaussianBlur stdDeviation="18"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.12549 0 0 0 0 0.0901961 0 0 0 0 0.0627451 0 0 0 0.28 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_2"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_2" result="shape"/>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="640" rx="28" fill="#161210"/>
+  <rect x="24" y="24" width="1232" height="592" rx="24" fill="url(#bg)"/>
+  <circle cx="990" cy="214" r="206" fill="url(#glow)"/>
+  <path d="M916 114C983 102 1045 120 1094 164C1148 212 1179 283 1175 351C1171 418 1136 481 1078 522" stroke="#F6D28E" stroke-opacity="0.36" stroke-width="6" stroke-linecap="round"/>
+  <path d="M870 135C938 169 979 216 994 275C1012 343 1003 414 967 486" stroke="#FFE1A7" stroke-opacity="0.16" stroke-width="30" stroke-linecap="round"/>
+  <path d="M1026 143C1085 181 1124 232 1138 299C1153 374 1134 448 1080 517" stroke="#2E1E18" stroke-opacity="0.52" stroke-width="17" stroke-linecap="round"/>
+
+  <g filter="url(#shadow)">
+    <rect x="156" y="118" width="736" height="404" rx="22" fill="url(#panel)"/>
+    <rect x="156" y="118" width="736" height="404" rx="22" stroke="#F7E4BF" stroke-opacity="0.62" stroke-width="2"/>
+  </g>
+
+  <path d="M174 148C263 127 345 124 420 139C501 155 565 183 646 214C705 237 760 249 828 248" stroke="#7F3A23" stroke-opacity="0.15" stroke-width="36" stroke-linecap="round"/>
+  <path d="M202 414C284 392 352 382 433 390C503 397 572 421 639 449C713 480 772 492 848 490" stroke="#8A4A29" stroke-opacity="0.18" stroke-width="34" stroke-linecap="round"/>
+
+  <text x="214" y="214" fill="#7A2E19" font-family="'Noto Serif SC','Source Han Serif SC','STSong','SimSun',serif" font-size="26" letter-spacing="4">LONG YIN LITE MOD</text>
+  <text x="214" y="306" fill="#241712" font-family="'Noto Serif SC','Source Han Serif SC','STSong','SimSun',serif" font-size="78" font-weight="700">名扬天下 RisingFame</text>
+  <text x="216" y="362" fill="#5B4333" font-family="'Segoe UI','Microsoft YaHei',sans-serif" font-size="28">龙吟立志传稳定精简版倍率插件</text>
+  <text x="216" y="404" fill="#5B4333" font-family="'Segoe UI','Microsoft YaHei',sans-serif" font-size="24">只保留真正有效的经验与贡献倍率修正，兼顾开关、低负担与启动稳定性。</text>
+
+  <g transform="translate(214 447)">
+    <rect width="184" height="50" rx="14" fill="url(#chip)"/>
+    <text x="26" y="32" fill="#F5E7D1" font-family="'Segoe UI','Microsoft YaHei',sans-serif" font-size="24">武学 x3 起步</text>
+  </g>
+  <g transform="translate(416 447)">
+    <rect width="184" height="50" rx="14" fill="url(#chip)"/>
+    <text x="26" y="32" fill="#F5E7D1" font-family="'Segoe UI','Microsoft YaHei',sans-serif" font-size="24">技艺 x2 起步</text>
+  </g>
+  <g transform="translate(618 447)">
+    <rect width="194" height="50" rx="14" fill="url(#chip)"/>
+    <text x="26" y="32" fill="#F5E7D1" font-family="'Segoe UI','Microsoft YaHei',sans-serif" font-size="24">开关 = 即时切换</text>
+  </g>
+
+  <rect x="942" y="376" width="220" height="96" rx="18" fill="#211711" fill-opacity="0.66" stroke="#F7D08A" stroke-opacity="0.4"/>
+  <text x="972" y="416" fill="#F3D5A3" font-family="'Segoe UI','Microsoft YaHei',sans-serif" font-size="22">当前版本</text>
+  <text x="972" y="452" fill="#FFF3DE" font-family="'Noto Serif SC','Source Han Serif SC','STSong','SimSun',serif" font-size="34" font-weight="700">v1.7.0</text>
+
+  <path d="M898 542L1148 542" stroke="#F3CA82" stroke-opacity="0.5" stroke-width="2"/>
+  <text x="899" y="579" fill="#F5E7D1" font-family="'Segoe UI','Microsoft YaHei',sans-serif" font-size="22">Windows x64  |  Steam  |  Unity IL2CPP  |  BepInEx 6.0.0-be.755</text>
+</svg>
