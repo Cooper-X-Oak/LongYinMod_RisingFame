@@ -1,0 +1,69 @@
+name: Feature Request
+description: 提交功能建议、倍率想法、兼容性方向或设计讨论
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请尽量把“功能建议”和“bug 反馈”分开提交。
+        
+        如果你的问题是：
+        
+        - 游戏打不开
+        - mod 不生效
+        - 启动很慢
+        - 崩溃 / 闪退
+        
+        请改用 `Bug Report` 模板。
+
+  - type: dropdown
+    id: request_type
+    attributes:
+      label: 建议类型
+      options:
+        - 新功能
+        - 现有倍率调整
+        - 安装体验改进
+        - 文档 / QA 改进
+        - 兼容性方向
+        - 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 你想解决什么问题
+      description: 请先描述痛点，再描述你想要的功能
+      placeholder: 例如某类经验当前提升不明显，或者玩家经常装错环境，导致反馈成本很高。
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 你的建议
+      description: 请尽量写清楚你希望的行为
+      placeholder: 例如新增某个倍率、调整现有公式、补充某类文档、增加某种开关。
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: 影响范围
+      description: 请说明你预期会影响哪些功能、角色或场景
+      placeholder: 例如只影响主角、同时影响 NPC、只影响技艺、不影响武学等。
+    validations:
+      required: false
+
+  - type: textarea
+    id: risk
+    attributes:
+      label: 你担心的风险
+      description: 如果你已经想到风险或副作用，也请写出来
+      placeholder: 例如可能加重启动负担、可能影响平衡、可能和现有开关冲突等。
+    validations:
+      required: false
