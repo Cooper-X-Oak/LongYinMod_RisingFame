@@ -2,11 +2,12 @@ using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
+using System;
 using UnityEngine;
 
 namespace RisingFame;
 
-[BepInPlugin("com.luoxu.longyin.risingfame", "RisingFame - MingYangTianXia", "1.5.0")]
+[BepInPlugin("com.luoxu.longyin.risingfame", "RisingFame - MingYangTianXia", "1.5.3")]
 public class Plugin : BasePlugin
 {
     internal static new ManualLogSource Log = null!;
@@ -14,18 +15,16 @@ public class Plugin : BasePlugin
     // ---- Mod ON/OFF ----
     internal static bool Enabled = true;
 
-    // Dynamic multiplier: 1 * (heroForceLv + 1)
-    // 武者=x1, 游侠=x2, 豪杰=x3, 大侠=x4, 名家=x5, 宗师=x6
+    // Input debounce to avoid rapid toggle spam.
+    static float _nextToggleTime;
+    static int _lastPollFrame = -1;
+
+    // Dynamic multiplier: rank1=x1.5, each rank +0.5 (rank6=x4.0)
     internal static float GetMultiplier(HeroData hero)
     {
         if (!Enabled) return 1f;
-        int lv = hero.heroForceLv + 1; // 1-6
-        return lv;
+        return 1.5f + 0.5f * hero.heroForceLv;
     }
-
-    // ---- Input ----
-    static bool _eqHeld;
-    static int _lastPollFrame = -1;
 
     // ---- Beep via Windows API ----
     [System.Runtime.InteropServices.DllImport("kernel32.dll")]
@@ -79,21 +78,21 @@ public class Plugin : BasePlugin
             postfix: new HarmonyMethod(typeof(BookWriterPatches), nameof(BookWriterPatches.GetTotalTimeCost_Post)),
             name: "BookWriterData.GetTotalTimeCost");
 
-        // Input polling
+        // Input polling (stable path on this game build)
         TryPatch(harmony, AccessTools.Method(typeof(Camera), "FireOnPostRender", new[] { typeof(Camera) }),
             postfix: new HarmonyMethod(typeof(Plugin), nameof(PollInput)),
             name: "Camera.FireOnPostRender (input)");
 
-        Log.LogInfo("RisingFame (MingYangTianXia) v1.5.0 loaded. Mod ON. Press '=' to toggle ON/OFF.");
-        Log.LogInfo("Exp/Favor: x(heroLv). Contribution: (heroLv + fame/1000). BookWrite: speed x10, cost /10");
+        Log.LogInfo("RisingFame v1.5.3 loaded. Mod ON. Press '=' to toggle.");
+        Log.LogInfo("Multiplier: rank1 x1.5, +0.5 per rank. Contribution enabled. BookWrite: speed x10, cost/time /10.");
     }
 
     void TryPatch(Harmony harmony, System.Reflection.MethodInfo? target,
         HarmonyMethod? prefix = null, HarmonyMethod? postfix = null, string name = "")
     {
         if (target == null) { Log.LogWarning($"[SKIP] {name} - not found"); return; }
-        try { harmony.Patch(target, prefix: prefix, postfix: postfix); Log.LogInfo($"Patched {name}."); }
-        catch (System.Exception ex) { Log.LogError($"[FAIL] {name}: {ex.Message}"); }
+        try { harmony.Patch(target, prefix: prefix, postfix: postfix); }
+        catch (Exception ex) { Log.LogError($"[FAIL] {name}: {ex.Message}"); }
     }
 
     public static void PollInput()
@@ -104,22 +103,35 @@ public class Plugin : BasePlugin
             if (frame == _lastPollFrame) return;
             _lastPollFrame = frame;
 
-            CheckKey(KeyCode.Equals, ref _eqHeld, () => {
-                Enabled = !Enabled;
-                Log.LogInfo($"[RisingFame] {(Enabled ? "ON (heroLv)" : "OFF (x1)")}");
-                System.Threading.ThreadPool.QueueUserWorkItem(_ => {
-                    try { if (Enabled) { Beep(1200, 80); Beep(1600, 80); } else { Beep(800, 80); Beep(400, 80); } } catch { }
-                });
+            if (Time.unscaledTime < _nextToggleTime) return;
+
+            bool pressed = Input.GetKeyDown(KeyCode.Equals) || Input.GetKeyDown(KeyCode.KeypadEquals);
+            if (!pressed) return;
+
+            _nextToggleTime = Time.unscaledTime + 0.2f;
+            Enabled = !Enabled;
+
+            Log.LogInfo($"[RisingFame] {(Enabled ? "ON" : "OFF")}");
+
+            System.Threading.ThreadPool.QueueUserWorkItem(_ =>
+            {
+                try
+                {
+                    if (Enabled)
+                    {
+                        Beep(1200, 80);
+                        Beep(1600, 80);
+                    }
+                    else
+                    {
+                        Beep(800, 80);
+                        Beep(400, 80);
+                    }
+                }
+                catch { }
             });
         }
         catch { }
-    }
-
-    static void CheckKey(KeyCode key, ref bool held, System.Action action)
-    {
-        bool down = Input.GetKey(key);
-        if (down && !held) action();
-        held = down;
     }
 }
 
@@ -171,7 +183,6 @@ static class ContributionPatches
             if (rate > 1f)
             {
                 __0 *= rate;
-                Plugin.Log.LogInfo($"[Contribution] {(isInner ? "Inner" : "Outer")} x{rate:F1} (lv={lv}, fame={fame:F0})");
             }
         }
         catch { }
@@ -188,7 +199,6 @@ static class ContributionPatches
             if (rate > 1f)
             {
                 __0 *= rate;
-                Plugin.Log.LogInfo($"[Contribution] Govern x{rate:F1} (lv={lv}, fame={fame:F0})");
             }
         }
         catch { }
@@ -209,13 +219,13 @@ static class BookWriterPatches
     public static void GetMoneyCost_Post(ref int __result)
     {
         if (!Plugin.Enabled) return;
-        __result = System.Math.Max(__result / 10, 1);
+        __result = Math.Max(__result / 10, 1);
     }
 
     // Reduce time cost display to 1/10
     public static void GetTotalTimeCost_Post(ref int __result)
     {
         if (!Plugin.Enabled) return;
-        __result = System.Math.Max(__result / 10, 1);
+        __result = Math.Max(__result / 10, 1);
     }
 }
