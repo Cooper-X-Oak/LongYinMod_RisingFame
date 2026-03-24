@@ -55,7 +55,7 @@ body:
     attributes:
       label: 影响范围
       description: 请说明你预期会影响哪些功能、角色或场景
-      placeholder: 例如只影响主角、同时影响 NPC、只影响技艺、不影响武学等。
+      placeholder: 例如只影响主角、同时影响 NPC、只影响技艺经验、不影响武学经验等。
     validations:
       required: false
 
