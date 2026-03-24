@@ -8,3 +8,6 @@ obj/
 .idea/
 GameInspector/
 Inspector/
+/build.ps1
+/deploy.ps1
+/install-to-game.ps1
