@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace RisingFame;
 
-[BepInPlugin("com.luoxu.longyin.risingfame", "RisingFame - MingYangTianXia", "1.5.9")]
+[BepInPlugin("com.luoxu.longyin.risingfame", "RisingFame - MingYangTianXia", "1.7.0")]
 public class Plugin : BasePlugin
 {
     internal static new ManualLogSource Log = null!;
@@ -24,6 +24,13 @@ public class Plugin : BasePlugin
     {
         if (!Enabled) return 1f;
         return Math.Max(3.0f + 0.5f * hero.heroForceLv, 1f);
+    }
+
+    // Living skill exp multiplier: rank1=x2.0, each rank +0.5 (rank6=x4.5)
+    internal static float GetLivingSkillExpMultiplier(HeroData hero)
+    {
+        if (!Enabled) return 1f;
+        return Math.Max(2.0f + 0.5f * hero.heroForceLv, 1f);
     }
 
     // Favor multiplier: rank1=x1.5, each rank +0.5 (rank6=x4.0)
@@ -71,6 +78,12 @@ public class Plugin : BasePlugin
             prefix: new HarmonyMethod(typeof(FightExpPatches), nameof(FightExpPatches.BattleChangeSkillFightExp_Pre)),
             name: "HeroData.BattleChangeSkillFightExp");
 
+        // Living skill real gain
+        TryPatch(harmony, AccessTools.Method(typeof(HeroData), "ChangeLivingSkillExp",
+                new[] { typeof(int), typeof(float), typeof(bool) }),
+            prefix: new HarmonyMethod(typeof(LivingSkillExpPatches), nameof(LivingSkillExpPatches.ChangeLivingSkillExp_Pre)),
+            name: "HeroData.ChangeLivingSkillExp");
+
         // Favor
         TryPatch(harmony, AccessTools.Method(typeof(HeroData), "ChangeFavor",
                 new[] { typeof(float), typeof(bool), typeof(float), typeof(float), typeof(bool) }),
@@ -107,8 +120,8 @@ public class Plugin : BasePlugin
             postfix: new HarmonyMethod(typeof(Plugin), nameof(PollInput)),
             name: "Camera.FireOnPostRender (input)");
 
-        Log.LogInfo("RisingFame v1.5.9 loaded. Mod ON. Press '=' to toggle.");
-        Log.LogInfo("Exp: rank1 x3.0, +0.5/rank. Favor: rank1 x1.5, +0.5/rank. Contribution enabled. BookWrite: speed x10, cost/time /10.");
+        Log.LogInfo("RisingFame v1.7.0 loaded. Mod ON. Press '=' to toggle.");
+        Log.LogInfo("Martial exp: rank1 x3.0, +0.5/rank. Living exp: rank1 x2.0, +0.5/rank. Favor: rank1 x1.5, +0.5/rank. Contribution enabled. BookWrite: speed x10, cost/time /10.");
     }
 
     void TryPatch(Harmony harmony, System.Reflection.MethodInfo? target,
@@ -196,6 +209,18 @@ static class FightExpPatches
         float m = Plugin.GetExpMultiplier(__instance);
         if (m <= 1f) return;
         __0 *= m;
+    }
+}
+
+[HarmonyPatch]
+static class LivingSkillExpPatches
+{
+    public static void ChangeLivingSkillExp_Pre(HeroData __instance, ref float __1)
+    {
+        if (__1 <= 0f) return;
+        float m = Plugin.GetLivingSkillExpMultiplier(__instance);
+        if (m <= 1f) return;
+        __1 *= m;
     }
 }
 
