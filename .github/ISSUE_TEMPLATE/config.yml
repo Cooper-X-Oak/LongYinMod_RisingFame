@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: README / 安装说明
+    url: https://github.com/Cooper-X-Oak/LongYinMod_RisingFame#readme
+    about: 先阅读 README 中的固定环境、安装方式、支持边界与 QA。

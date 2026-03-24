@@ -1,0 +1,111 @@
+name: Bug Report
+description: 反馈打不开、不生效、卡顿、崩溃等问题
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        提交前请先确认：
+        
+        - 你使用的是固定支持环境
+        - 你已经先单独验证过 `BepInEx` 能启动
+        - 你已经阅读过 README 里的 QA
+
+  - type: input
+    id: mod_version
+    attributes:
+      label: Mod 版本
+      description: 例如 `v1.7.0`
+      placeholder: v1.7.0
+    validations:
+      required: true
+
+  - type: input
+    id: bepinex_zip
+    attributes:
+      label: BepInEx 压缩包完整文件名
+      description: 必须填写完整文件名
+      placeholder: BepInEx-Unity.IL2CPP-win-x64-6.0.0-be.755+3fab71a.zip
+    validations:
+      required: true
+
+  - type: dropdown
+    id: game_platform
+    attributes:
+      label: 游戏环境
+      options:
+        - Windows x64 + Steam + Unity IL2CPP
+        - 不是上述环境
+    validations:
+      required: true
+
+  - type: dropdown
+    id: bepinex_alone
+    attributes:
+      label: 只安装 BepInEx 时，游戏能否启动
+      options:
+        - 能启动
+        - 不能启动
+        - 没有单独测试
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: 问题类型
+      options:
+        - 游戏打不开
+        - 装了 mod 后打不开
+        - 功能不生效
+        - 启动很慢
+        - 游戏内卡顿
+        - 崩溃 / 闪退
+        - 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue_desc
+    attributes:
+      label: 问题描述
+      description: 请写清楚你做了什么、看到什么、期望结果是什么
+      placeholder: 我先装了固定版本的 BepInEx，单独启动正常。放入 RisingFame.dll 后，游戏在启动界面卡住，没有进入主菜单。
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro_steps
+    attributes:
+      label: 复现步骤
+      description: 请按顺序写步骤
+      placeholder: |
+        1. 解压固定版本 BepInEx 到游戏目录
+        2. 启动一次游戏
+        3. 放入 RisingFame.dll
+        4. 再次启动游戏
+        5. 出现卡住 / 报错 / 不生效
+    validations:
+      required: true
+
+  - type: textarea
+    id: log_excerpt
+    attributes:
+      label: LogOutput.log 内容
+      description: 请粘贴关键日志，或至少说明是否出现 `Loading [RisingFame - MingYangTianXia ...]`
+      placeholder: |
+        请粘贴 `BepInEx/LogOutput.log` 里的关键内容。
+        如果日志太长，也请至少附上文件。
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshot_note
+    attributes:
+      label: 游戏根目录截图说明
+      description: 请在提交 issue 时附上游戏根目录截图，并在这里说明是否已附上
+      placeholder: 已附上游戏根目录截图。
+    validations:
+      required: true
