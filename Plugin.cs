@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace RisingFame;
 
-[BepInPlugin("com.luoxu.longyin.risingfame", "RisingFame - MingYangTianXia", "1.8.14")]
+[BepInPlugin("com.luoxu.longyin.risingfame", "RisingFame - MingYangTianXia", "1.8.15")]
 public class Plugin : BasePlugin
 {
     internal static new ManualLogSource Log = null!;
@@ -362,13 +362,24 @@ public class Plugin : BasePlugin
         if (!IsPanelActive(instance.creaftUIPanel)) return false;
         if (instance.craftResultList == null || instance.craftResultList.Count <= 0) return false;
 
+        PlotController? plot = PlotController.Instance;
+        if (plot == null) return false;
+
         string before = GetItemListSummary(instance.craftResultList);
+        ClearItemList(instance.craftResultList);
 
-        instance.CraftButtonClicked();
-        string after = GetItemListSummary(instance.craftResultList);
-
-        Log.LogInfo($"[RisingFame] Craft refresh results {before} -> {after}");
-        return !string.Equals(before, after, StringComparison.Ordinal);
+        try
+        {
+            plot.FinishCraft();
+            string after = GetItemListSummary(instance.craftResultList);
+            Log.LogInfo($"[RisingFame] Craft refresh via FinishCraft {before} -> {after}");
+            return !string.Equals(before, after, StringComparison.Ordinal);
+        }
+        catch (Exception ex)
+        {
+            Log.LogInfo($"[RisingFame] Craft refresh via FinishCraft failed: {ex.Message}");
+            return false;
+        }
     }
 
     static bool TryRefreshAuctionByChoice(PlotController plot, AuctionController? auction)
