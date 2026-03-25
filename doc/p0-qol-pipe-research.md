@@ -22,9 +22,11 @@
 
 ## 研究基线
 
-程序集来源：
+程序集来源如下。
 
-- `D:\Users\luoxu\game\steam\steamapps\common\LongYinLiZhiZhuan\BepInEx\interop\Assembly-CSharp.dll`
+路径表述说明：
+
+- 下文统一以游戏根目录为基准，记作：`LongYinLiZhiZhuan/BepInEx/interop/Assembly-CSharp.dll`
 
 研究方式：
 

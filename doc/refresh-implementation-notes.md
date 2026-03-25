@@ -60,9 +60,11 @@
 
 这次定位没有继续靠猜字段名，而是直接对游戏的 interop 代理程序集做定向检查。
 
-研究基线：
+研究基线如下。
 
-- `D:\Users\luoxu\game\steam\steamapps\common\LongYinLiZhiZhuan\BepInEx\interop\Assembly-CSharp.dll`
+路径表述说明：
+
+- 下文统一以游戏根目录为基准，记作：`LongYinLiZhiZhuan/BepInEx/interop/Assembly-CSharp.dll`
 
 实际使用的方法：
 

@@ -20,9 +20,11 @@
 
 ## 研究方法
 
-本次研究基于游戏 interop 目录中的代理程序集：
+本次研究基于游戏 interop 目录中的代理程序集。
 
-- `D:\Users\luoxu\game\steam\steamapps\common\LongYinLiZhiZhuan\BepInEx\interop\Assembly-CSharp.dll`
+路径表述说明：
+
+- 下文统一以游戏根目录为基准，记作：`LongYinLiZhiZhuan/BepInEx/interop/Assembly-CSharp.dll`
 
 研究方式：
 

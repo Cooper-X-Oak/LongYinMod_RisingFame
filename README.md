@@ -95,6 +95,13 @@
 
 ## 文档导航
 
+这套文档现在按四层来组织：
+
+- 需求侧：先回答“玩家要什么、版本应该往哪走”
+- 技术侧：再回答“原生管线长什么样、挂点该放哪”
+- 实现侧：最后回答“某个功能是怎么真正落地的”
+- 资料层：保留抓取样本与原始素材，方便回溯
+
 建议阅读顺序：
 
 1. 先看需求侧，确认玩家到底在要什么
@@ -103,7 +110,9 @@
 
 每篇文档最多展开 4 个可直达章节，点进去可以直接跳到对应部分。
 
-### [社区需求与功能提案](./doc/mod-demand-proposals.md)
+### 需求侧
+
+#### [社区需求与功能提案](./doc/mod-demand-proposals.md)
 
 适合：想先看方向判断、版本路线和优先级时。
 
@@ -112,7 +121,7 @@
 - [P0 细化定义](./doc/mod-demand-proposals.md#demand-p0-scope)
 - [落地顺序](./doc/mod-demand-proposals.md#demand-roadmap)
 
-### [Bilibili 需求二次分析](./doc/bilibili-demand-analysis.md)
+#### [Bilibili 需求二次分析](./doc/bilibili-demand-analysis.md)
 
 适合：想看 B 站标题、字幕、评论里更细的需求信号时。
 
@@ -121,7 +130,9 @@
 - [路线启发](./doc/bilibili-demand-analysis.md#bili-analysis-insights)
 - [后续研究方向](./doc/bilibili-demand-analysis.md#bili-analysis-next)
 
-### [原生 Hook / 管线研究](./doc/native-hook-research.md)
+### 技术侧
+
+#### [原生 Hook / 管线研究](./doc/native-hook-research.md)
 
 适合：想找真实入账点、展示层和未来挂点时。
 
@@ -130,7 +141,7 @@
 - [原生通知管线](./doc/native-hook-research.md#native-notify-pipeline)
 - [挂点建议](./doc/native-hook-research.md#native-hook-suggestions)
 
-### [P0 低风险减肝 / 交互提效包研究](./doc/p0-qol-pipe-research.md)
+#### [P0 低风险减肝 / 交互提效包研究](./doc/p0-qol-pipe-research.md)
 
 适合：想从“低风险、低负担”角度继续往下做时。
 
@@ -139,7 +150,9 @@
 - [原生提示管线](./doc/p0-qol-pipe-research.md#p0-native-feedback)
 - [实现优先级建议](./doc/p0-qol-pipe-research.md#p0-priority)
 
-### [一键刷新功能逆向与实现说明](./doc/refresh-implementation-notes.md)
+### 实现侧
+
+#### [一键刷新功能逆向与实现说明](./doc/refresh-implementation-notes.md)
 
 适合：想看 `1.8` 新功能是怎么定位和落地的。
 
@@ -148,7 +161,9 @@
 - [最终实现路径](./doc/refresh-implementation-notes.md#refresh-final-path)
 - [未来启发](./doc/refresh-implementation-notes.md#refresh-future)
 
-原始抓取资料包见：[doc/bilibili/README.md](./doc/bilibili/README.md)
+### 资料层
+
+- 原始抓取资料包见：[doc/bilibili/README.md](./doc/bilibili/README.md)
 
 ## License
 
