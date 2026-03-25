@@ -18,7 +18,9 @@
 
 ## 演示
 
-- 刷新功能测试视频：[刷新测试.mp4](./assets/刷新测试.mp4)
+![一键刷新武学词条演示](./assets/一键刷新武学词条.gif)
+
+- 动图预览：上方 GIF
 - 技术实现说明：[doc/refresh-implementation-notes.md](./doc/refresh-implementation-notes.md)
 
 ## 功能
