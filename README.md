@@ -16,13 +16,13 @@
 
 </div>
 
-## 01. 一句话说明
+## [01] 一句话说明
 
 - 这是一个以“稳定、低负担、真入账”为优先目标的《龙吟立志传》BepInEx 插件。
 - 核心仍然是倍率修正、开关和兼容性控制，不是大而全功能包。
 - `1.8` 版本新增了低风险的 `Alt+R` 上下文一键刷新。
 
-## 02. 核心功能
+## [02] 核心功能
 
 | 模块        | 规则                                                                                     |
 | --------- | -------------------------------------------------------------------------------------- |
@@ -34,7 +34,7 @@
 | 门派 / 官府功绩 | 外门派与官府：`(heroForceLv + 1) + fame / 1000`；本门派：`((heroForceLv + 1) + fame / 1000) * 0.5` |
 | 抄书        | 进度 `x10`，花费 `/10`，时间 `/10`                                                             |
 
-## 03. 1.8 新功能：一键刷新
+## [03] 1.8 新功能：一键刷新
 
 `1.8` 开始新增 `Alt+R` 上下文一键刷新，只在当前已打开的支持界面中生效，目标是减少反复退出重进、反复刷词条的操作负担。
 
@@ -50,7 +50,7 @@
 
 - 技术实现说明：[doc/refresh-implementation-notes.md](./doc/refresh-implementation-notes.md)
 
-## 04. 安装
+## [04] 安装
 
 1. 下载并解压固定版本：`BepInEx-Unity.IL2CPP-win-x64-6.0.0-be.755+3fab71a.zip`
 2. 解压到 `LongYinLiZhiZhuan.exe` 所在目录。
@@ -58,7 +58,7 @@
 4. 将 `RisingFame.dll` 放入 `BepInEx/plugins/`。
 5. 再次启动游戏，进游戏后按 `=` 测试开关。
 
-## 05. 支持边界
+## [05] 支持边界
 
 | 项目      | 说明                                       |
 | ------- | ---------------------------------------- |
@@ -70,30 +70,30 @@
 
 除以上组合外，其他环境与混装方式不在当前支持范围内。
 
-## 06. 说明
+## [06] 说明
 
 - 武学经验与技艺经验的倍率，对走同一入账路径的 NPC 同样生效。
 - 当前版本优先“真入账 + 低风险”，不追求大而全。
 - `Alt+R` 是上下文触发，只调用当前已打开界面的原生控制器方法，不做后台扫描。
 - 这次刷新功能的逆向定位、失败原因和最终实现路径，已经整理到 [doc/refresh-implementation-notes.md](./doc/refresh-implementation-notes.md)。
 
-## 07. QA
+## [07] QA
 
-### 07.1 装完 BepInEx 就打不开
+### [07.1] 装完 BepInEx 就打不开
 
 先不要放 `RisingFame.dll`。如果只装固定版本的 BepInEx 仍然打不开，问题通常在 BepInEx 环境本身：版本错误、架构错误，或目录里混有旧文件。
 
-### 07.2 装完 DLL 后不生效或进不去
+### [07.2] 装完 DLL 后不生效或进不去
 
 先确认 `BepInEx/LogOutput.log` 里有插件加载信息，并确保 `BepInEx/plugins/` 里只有当前版本的 `RisingFame.dll`，不要和其他 mod 混装测试。
 
-### 07.3 反馈问题时请提供
+### [07.3] 反馈问题时请提供
 
 1. `BepInEx/LogOutput.log`
 2. 游戏根目录截图
 3. 你下载的 `BepInEx` 压缩包完整文件名
 
-## 08. 文档导航
+## [08] 文档导航
 
 这套文档现在按四层来组织：
 
@@ -110,58 +110,58 @@
 
 每篇文档最多展开 4 个可直达章节，点进去可以直接跳到对应部分。
 
-### 08.1 需求侧
+### [08.1] 需求侧
 
-#### 08.1.1 [社区需求与功能提案](./doc/mod-demand-proposals.md)
+#### [08.1.1] [社区需求与功能提案](./doc/mod-demand-proposals.md)
 
-适合：想先看方向判断、版本路线和优先级时。
+> 为什么有这篇：先把社区高频需求、版本路线和优先级讲清楚，避免功能一路加下去却偏离真正高价值方向。
 
 - [需求归类](./doc/mod-demand-proposals.md#demand-categories)
 - [提案优先级](./doc/mod-demand-proposals.md#demand-priority)
 - [P0 细化定义](./doc/mod-demand-proposals.md#demand-p0-scope)
 - [落地顺序](./doc/mod-demand-proposals.md#demand-roadmap)
 
-#### 08.1.2 [Bilibili 需求二次分析](./doc/bilibili-demand-analysis.md)
+#### [08.1.2] [Bilibili 需求二次分析](./doc/bilibili-demand-analysis.md)
 
-适合：想看 B 站标题、字幕、评论里更细的需求信号时。
+> 为什么有这篇：把 B 站视频标题、字幕和评论区里的真实诉求再细化一轮，补足“提案层”之外的用户声音。
 
 - [重点样本](./doc/bilibili-demand-analysis.md#bili-analysis-samples)
 - [二次结论](./doc/bilibili-demand-analysis.md#bili-analysis-conclusion)
 - [路线启发](./doc/bilibili-demand-analysis.md#bili-analysis-insights)
 - [后续研究方向](./doc/bilibili-demand-analysis.md#bili-analysis-next)
 
-### 08.2 技术侧
+### [08.2] 技术侧
 
-#### 08.2.1 [原生 Hook / 管线研究](./doc/native-hook-research.md)
+#### [08.2.1] [原生 Hook / 管线研究](./doc/native-hook-research.md)
 
-适合：想找真实入账点、展示层和未来挂点时。
+> 为什么有这篇：把原生实现拆成真实入账层、流程层和展示层，后续加功能时不再靠猜。
 
 - [稳定核心挂点](./doc/native-hook-research.md#native-core-hooks)
 - [武学经验管线](./doc/native-hook-research.md#native-fight-pipeline)
 - [原生通知管线](./doc/native-hook-research.md#native-notify-pipeline)
 - [挂点建议](./doc/native-hook-research.md#native-hook-suggestions)
 
-#### 08.2.2 [P0 低风险减肝 / 交互提效包研究](./doc/p0-qol-pipe-research.md)
+#### [08.2.2] [P0 低风险减肝 / 交互提效包研究](./doc/p0-qol-pipe-research.md)
 
-适合：想从“低风险、低负担”角度继续往下做时。
+> 为什么有这篇：把“低风险、低负担”的做法单独收敛出来，避免后续实现一上来就走重逻辑和高风险路线。
 
 - [目标拆分](./doc/p0-qol-pipe-research.md#p0-target-split)
 - [读书流程研究](./doc/p0-qol-pipe-research.md#p0-read-book)
 - [原生提示管线](./doc/p0-qol-pipe-research.md#p0-native-feedback)
 - [实现优先级建议](./doc/p0-qol-pipe-research.md#p0-priority)
 
-### 08.3 实现侧
+### [08.3] 实现侧
 
-#### 08.3.1 [一键刷新功能逆向与实现说明](./doc/refresh-implementation-notes.md)
+#### [08.3.1] [一键刷新功能逆向与实现说明](./doc/refresh-implementation-notes.md)
 
-适合：想看 `1.8` 新功能是怎么定位和落地的。
+> 为什么有这篇：把 `1.8` 一键刷新从踩坑、逆向到最终落地完整记下来，方便以后复用这套方法做别的功能。
 
 - [初版失败现象](./doc/refresh-implementation-notes.md#refresh-first-failure)
 - [原生控制器入口](./doc/refresh-implementation-notes.md#refresh-native-controllers)
 - [最终实现路径](./doc/refresh-implementation-notes.md#refresh-final-path)
 - [未来启发](./doc/refresh-implementation-notes.md#refresh-future)
 
-### 08.4 资料层
+### [08.4] 资料层
 
 - 原始抓取资料包见：[doc/bilibili/README.md](./doc/bilibili/README.md)
 

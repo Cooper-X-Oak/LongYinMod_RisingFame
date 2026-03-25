@@ -2,7 +2,7 @@
 
 更新时间：`2026-03-25`
 
-## 01. 目录说明
+## [01] 目录说明
 
 说明：
 
@@ -28,7 +28,7 @@
 - `raw/comments-summary.md`
   - 评论关键词命中摘要
 
-## 02. 推荐阅读顺序
+## [02] 推荐阅读顺序
 
 1. `../bilibili-demand-analysis.md`
 2. `raw/comments-summary.md`
