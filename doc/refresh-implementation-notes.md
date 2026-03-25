@@ -39,6 +39,7 @@
 - 不需要新建组件，不引入场景生命周期风险
 - 只有按键发生时才会进一步走刷新分支
 
+<a id="refresh-first-failure"></a>
 ## 初版失败现象
 
 首版实现部署后，按键会有蜂鸣提示，但没有实际效果，日志里出现了典型告警：
@@ -77,6 +78,7 @@
 - 可以得到比猜测更可靠的“真实属性 / 方法签名”
 - 结论足够精确，后续实现可以改成强类型调用
 
+<a id="refresh-native-controllers"></a>
 ## 已确认的原生控制器入口
 
 ### 1. `SpeEnhanceEquipController`
@@ -195,6 +197,7 @@
 
 - `PlotController.Instance.tempPlotShop`
 
+<a id="refresh-final-path"></a>
 ## 最终实现路径
 
 ### 1. 输入层
@@ -289,6 +292,7 @@ instance.RestartAuction(
 
 因此它的运行成本几乎全部集中在“按键瞬间”，不会在平时持续吞性能。
 
+<a id="refresh-future"></a>
 ## 对未来功能的启发
 
 这次逆向得到的经验，对后续功能扩展很有价值。

@@ -37,6 +37,7 @@
 - 这份文档适合做“挂点地图”和“实现方向判断”
 - 如果后续要做具体实现，仍然建议针对目标方法再做一次定向验证
 
+<a id="native-core-hooks"></a>
 ## 当前插件的稳定核心挂点
 
 当前 `Plugin.cs` 里，真实入账和核心功能的挂点仍然是对的：
@@ -66,6 +67,7 @@
 - 如果目标是“全角色真实入账生效”，当前核心选点仍然应该守在 `HeroData` / `BookWriterData` 这一层
 - 如果只是追求显示一致性，`GetBookExpRate` / `GetFightExpRate` 可以看作可选层，不是核心入账层
 
+<a id="native-fight-pipeline"></a>
 ## 一、武学经验管线
 
 ### 1. 底层真实入账
@@ -296,6 +298,7 @@
 - 如果目标是“某个门派 / 官府流程内的具体效果”，优先研究 `PlotController` / `BuildingUIController`
 - 如果目标是“界面同步刷新”，再看 `HeroDetailController` / `MeetingController`
 
+<a id="native-notify-pipeline"></a>
 ## 五、原生通知 / 消息管线
 
 ### 1. 信息栏 / 系统消息
@@ -482,6 +485,7 @@
 - 未来如果要做原生 UI 通知，优先考虑控制器单例
 - 不要优先走注入组件、场景扫描、运行时找对象这种高风险路线
 
+<a id="native-hook-suggestions"></a>
 ## 八、后续功能的挂点建议
 
 ### 场景 A：要全角色真实生效

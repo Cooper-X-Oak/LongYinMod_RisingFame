@@ -93,12 +93,25 @@
 2. 游戏根目录截图
 3. 你下载的 `BepInEx` 压缩包完整文件名
 
-## 文档
+## 文档导航
 
-- [逆向总览：原生 Hook / 管线研究](./doc/native-hook-research.md)
-- [P0 提效研究：低风险减肝 / 交互提效包](./doc/p0-qol-pipe-research.md)
-- [需求侧研究：Steam / B 站 Mod 需求分析](./doc/mod-demand-proposals.md)
-- [刷新功能技术说明：Alt+R 逆向与实现](./doc/refresh-implementation-notes.md)
+建议阅读顺序：
+
+1. 先看需求侧，确认玩家到底在要什么
+2. 再看原生管线，确认哪些点适合挂
+3. 最后看具体功能实现，确认一条功能是怎么落地的
+
+每篇文档最多展开 4 个可直达章节，点进去可以直接跳到对应部分。
+
+| 文档 | 适合什么时候看 | 章节导航 |
+| --- | --- | --- |
+| [社区需求与功能提案](./doc/mod-demand-proposals.md) | 想先看方向判断、版本路线和优先级时 | [需求归类](./doc/mod-demand-proposals.md#demand-categories)<br>[提案优先级](./doc/mod-demand-proposals.md#demand-priority)<br>[P0 细化定义](./doc/mod-demand-proposals.md#demand-p0-scope)<br>[落地顺序](./doc/mod-demand-proposals.md#demand-roadmap) |
+| [Bilibili 需求二次分析](./doc/bilibili-demand-analysis.md) | 想看 B 站标题、字幕、评论里更细的需求信号时 | [重点样本](./doc/bilibili-demand-analysis.md#bili-analysis-samples)<br>[二次结论](./doc/bilibili-demand-analysis.md#bili-analysis-conclusion)<br>[路线启发](./doc/bilibili-demand-analysis.md#bili-analysis-insights)<br>[后续研究方向](./doc/bilibili-demand-analysis.md#bili-analysis-next) |
+| [原生 Hook / 管线研究](./doc/native-hook-research.md) | 想找真实入账点、展示层和未来挂点时 | [稳定核心挂点](./doc/native-hook-research.md#native-core-hooks)<br>[武学经验管线](./doc/native-hook-research.md#native-fight-pipeline)<br>[原生通知管线](./doc/native-hook-research.md#native-notify-pipeline)<br>[挂点建议](./doc/native-hook-research.md#native-hook-suggestions) |
+| [P0 低风险减肝 / 交互提效包研究](./doc/p0-qol-pipe-research.md) | 想从“低风险、低负担”角度继续往下做时 | [目标拆分](./doc/p0-qol-pipe-research.md#p0-target-split)<br>[读书流程研究](./doc/p0-qol-pipe-research.md#p0-read-book)<br>[原生提示管线](./doc/p0-qol-pipe-research.md#p0-native-feedback)<br>[实现优先级建议](./doc/p0-qol-pipe-research.md#p0-priority) |
+| [一键刷新功能逆向与实现说明](./doc/refresh-implementation-notes.md) | 想看 `1.8` 新功能是怎么定位和落地的 | [初版失败现象](./doc/refresh-implementation-notes.md#refresh-first-failure)<br>[原生控制器入口](./doc/refresh-implementation-notes.md#refresh-native-controllers)<br>[最终实现路径](./doc/refresh-implementation-notes.md#refresh-final-path)<br>[未来启发](./doc/refresh-implementation-notes.md#refresh-future) |
+
+原始抓取资料包见：[doc/bilibili/README.md](./doc/bilibili/README.md)
 
 ## License
 
