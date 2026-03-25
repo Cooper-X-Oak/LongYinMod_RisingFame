@@ -1,14 +1,15 @@
-using BepInEx;
+﻿using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
 using System;
 using System.Reflection;
+using System.Text;
 using UnityEngine;
 
 namespace RisingFame;
 
-[BepInPlugin("com.luoxu.longyin.risingfame", "RisingFame - MingYangTianXia", "1.8.5")]
+[BepInPlugin("com.luoxu.longyin.risingfame", "RisingFame - MingYangTianXia", "1.8.14")]
 public class Plugin : BasePlugin
 {
     internal static new ManualLogSource Log = null!;
@@ -19,6 +20,17 @@ public class Plugin : BasePlugin
     // Input debounce to avoid rapid toggle spam.
     static float _nextToggleTime;
     static int _lastPollFrame = -1;
+    enum AuctionRefreshStep
+    {
+        None,
+        SingleShow,
+        ResetDisplay,
+        ChooseClose,
+        EnsureOpen
+    }
+
+    static int _pendingAuctionSequenceFrame = -1;
+    static AuctionRefreshStep _pendingAuctionStep;
 
     // Cached auction generation context captured from the game's native path.
     static ItemListData? _lastAuctionTargetList;
@@ -27,6 +39,8 @@ public class Plugin : BasePlugin
     static int _lastAuctionItemNum;
     static int _auctionGenerateVersion;
     static bool _pendingAuctionReroll;
+    static bool _pendingAuctionAwaitChooseClose;
+    static int _pendingAuctionEnsureOpenRetries;
 
     // Exp multiplier: rank1=x3.0, each rank +0.5 (rank6=x5.5)
     internal static float GetExpMultiplier(HeroData hero)
@@ -140,7 +154,15 @@ public class Plugin : BasePlugin
             postfix: new HarmonyMethod(typeof(AuctionTracePatches), nameof(AuctionTracePatches.ShowAuctionItem_Post)),
             name: "PlotController.ShowAuctionItem");
 
-        Log.LogInfo("RisingFame v1.8.5 loaded. Mod ON. Press '=' to toggle. Press Alt+R to refresh current panel.");
+        TryPatch(harmony, AccessTools.Method(typeof(ChooseController), "HideChoosePanel", Type.EmptyTypes),
+            postfix: new HarmonyMethod(typeof(ChoosePanelTracePatches), nameof(ChoosePanelTracePatches.HideChoosePanel_Post)),
+            name: "ChooseController.HideChoosePanel");
+
+        TryPatch(harmony, AccessTools.Method(typeof(ChooseController), "UnshowChoosePanel", Type.EmptyTypes),
+            postfix: new HarmonyMethod(typeof(ChoosePanelTracePatches), nameof(ChoosePanelTracePatches.UnshowChoosePanel_Post)),
+            name: "ChooseController.UnshowChoosePanel");
+
+        Log.LogInfo("RisingFame v1.8.14 loaded. Mod ON. Press '=' to toggle. Press Alt+R to refresh current panel. Press Alt+I to dump auction UI snapshot.");
         Log.LogInfo("Martial exp: rank1 x3.0, +0.5/rank. Living exp: rank1 x2.0, +0.5/rank. Favor: rank1 x1.5, +0.5/rank. Contribution enabled. BookWrite: speed x10, cost/time /10. Quick refresh: breakthrough / special enhance / enhance / craft / auction reroll arm.");
     }
 
@@ -159,6 +181,8 @@ public class Plugin : BasePlugin
             int frame = Time.frameCount;
             if (frame == _lastPollFrame) return;
             _lastPollFrame = frame;
+
+            TickPendingActions(frame);
 
             if (Time.unscaledTime < _nextToggleTime) return;
 
@@ -180,6 +204,15 @@ public class Plugin : BasePlugin
             if (!altHeld) return;
 
             bool refreshPressed = Input.GetKeyDown(KeyCode.R);
+            bool inspectPressed = Input.GetKeyDown(KeyCode.I);
+
+            if (inspectPressed)
+            {
+                DumpAuctionUiSnapshot();
+                QueueRefreshBeep(success: true);
+                return;
+            }
+
             if (!refreshPressed) return;
 
             _nextToggleTime = Time.unscaledTime + 0.15f;
@@ -189,6 +222,14 @@ public class Plugin : BasePlugin
             QueueRefreshBeep(result.StartsWith("Refresh: ", StringComparison.Ordinal));
         }
         catch { }
+    }
+
+    static void TickPendingActions(int frame)
+    {
+        if (_pendingAuctionSequenceFrame < 0 || frame < _pendingAuctionSequenceFrame)
+            return;
+
+        AdvanceAuctionRefreshSequence(frame);
     }
 
     static void QueueBeep(bool enabled)
@@ -300,7 +341,13 @@ public class Plugin : BasePlugin
         if (FindAuctionChoice(plot, "ShowAuctionItem") != null)
         {
             _pendingAuctionReroll = true;
-            Log.LogInfo("[RisingFame] Auction reroll armed. Click native '查看展品' to apply.");
+            bool exhibitVisible = IsAuctionExhibitVisible(plot);
+            _pendingAuctionAwaitChooseClose = false;
+            _pendingAuctionEnsureOpenRetries = 0;
+            ScheduleAuctionRefreshStep(exhibitVisible ? AuctionRefreshStep.ResetDisplay : AuctionRefreshStep.EnsureOpen, Time.frameCount + (exhibitVisible ? 1 : 3));
+            Log.LogInfo(exhibitVisible
+                ? "[RisingFame] Auction reroll armed. Reset -> close -> ensure open."
+                : "[RisingFame] Auction reroll armed. Ensure open shortly.");
             return true;
         }
 
@@ -423,6 +470,284 @@ public class Plugin : BasePlugin
         }
     }
 
+    static void DumpAuctionUiSnapshot()
+    {
+        try
+        {
+            Log.LogInfo("[RisingFame] ===== Auction UI Snapshot =====");
+
+            AuctionController? auction = AuctionController.Instance;
+            if (auction == null)
+            {
+                Log.LogInfo("[RisingFame] AuctionController = null");
+            }
+            else
+            {
+                Log.LogInfo(
+                    $"[RisingFame] Auction state step={auction.auctionStep} items={GetItemListSummary(auction.auctionItemList)} icons={GetGameObjectListSummary(auction.auctionItemIconList)}");
+                Log.LogInfo(
+                    $"[RisingFame] Auction panels panel={DescribeGameObject(auction.auctionPanel)} playerUI={DescribeGameObject(auction.playerAuctionUI)} startBtn={DescribeGameObject(auction.startAuctionButton)} talk={DescribeGameObject(auction.talkPanel)} leave={DescribeGameObject(auction.leaveAuctionButton)} skip={DescribeGameObject(auction.skipButton)} tempObj={DescribeGameObject(auction.tempObj)}");
+                Log.LogInfo(
+                    $"[RisingFame] Auction prefab slot={DescribeGameObject(auction.auctionSlotPrefab)} slotParent={DescribeTransform(auction.auctionSlotPrefab != null ? auction.auctionSlotPrefab.transform.parent : null)}");
+
+                GameObject? firstIcon = GetFirstGameObject(auction.auctionItemIconList);
+                if (firstIcon != null)
+                {
+                    Transform? iconParent = firstIcon.transform.parent;
+                    Log.LogInfo(
+                        $"[RisingFame] Auction firstIcon={DescribeGameObject(firstIcon)} iconParent={DescribeTransform(iconParent)}");
+                    DumpHierarchy(iconParent != null ? iconParent.gameObject : firstIcon, maxDepth: 2, maxChildren: 24, tag: "AuctionIconRoot");
+                }
+
+                if (auction.auctionPanel != null)
+                    DumpHierarchy(auction.auctionPanel, maxDepth: 2, maxChildren: 24, tag: "AuctionPanel");
+
+                if (auction.playerAuctionUI != null)
+                    DumpHierarchy(auction.playerAuctionUI, maxDepth: 2, maxChildren: 24, tag: "PlayerAuctionUI");
+            }
+
+            DumpActiveItemIconControllers();
+            DumpActiveItemListControllers();
+
+            PlotController? plot = PlotController.Instance;
+            if (plot == null)
+            {
+                Log.LogInfo("[RisingFame] PlotController = null");
+            }
+            else
+            {
+                Log.LogInfo(
+                    $"[RisingFame] Plot state panel={DescribeGameObject(plot.plotPanel)} itemGrid={DescribeGameObject(plot.plotItemGrid)} tempShop={GetItemListSummary(plot.tempPlotShop)} item={(plot.plotInteractItem != null)} tempRecord={(plot.plotInteractItemTempRecord != null)} ctx={GetAuctionChoiceContext(plot)}");
+
+                if (plot.plotItemGrid != null)
+                    DumpHierarchy(plot.plotItemGrid, maxDepth: 2, maxChildren: 24, tag: "PlotItemGrid");
+            }
+
+            Log.LogInfo("[RisingFame] ===== Auction UI Snapshot End =====");
+        }
+        catch (Exception ex)
+        {
+            Log.LogInfo($"[RisingFame] Auction UI snapshot failed: {ex.Message}");
+        }
+    }
+
+    static void DumpActiveItemIconControllers()
+    {
+        try
+        {
+            ItemIconController[] icons = UnityEngine.Object.FindObjectsOfType<ItemIconController>(true);
+            int activeCount = 0;
+            for (int i = 0; i < icons.Length; i++)
+            {
+                ItemIconController? icon = icons[i];
+                if (icon == null || icon.gameObject == null || !icon.gameObject.activeInHierarchy)
+                    continue;
+
+                activeCount++;
+                ItemData? item = null;
+                try { item = icon.itemData; } catch { }
+                string itemName = item != null ? $"{item.itemID}:{item.name}" : "null";
+                Log.LogInfo(
+                    $"[RisingFame] ActiveItemIcon path={GetTransformPath(icon.transform)} item={itemName} iconType={SafeToString(() => icon.itemIconType.ToString())} hideName={SafeToString(() => icon.hideItemName.ToString())} hideBox={SafeToString(() => icon.hideItemBox.ToString())}");
+            }
+
+            Log.LogInfo($"[RisingFame] ActiveItemIcon total={activeCount}");
+        }
+        catch (Exception ex)
+        {
+            Log.LogInfo($"[RisingFame] ActiveItemIcon dump failed: {ex.Message}");
+        }
+    }
+
+    static void DumpActiveItemListControllers()
+    {
+        try
+        {
+            ItemListController[] lists = UnityEngine.Object.FindObjectsOfType<ItemListController>(true);
+            int activeCount = 0;
+            for (int i = 0; i < lists.Length; i++)
+            {
+                ItemListController? list = lists[i];
+                if (list == null || list.gameObject == null || !list.gameObject.activeInHierarchy)
+                    continue;
+
+                activeCount++;
+                Log.LogInfo($"[RisingFame] ActiveItemList path={GetTransformPath(list.transform)} comps={GetComponentSummary(list.gameObject)}");
+                DumpHierarchy(list.gameObject, maxDepth: 2, maxChildren: 20, tag: "ActiveItemList");
+            }
+
+            Log.LogInfo($"[RisingFame] ActiveItemList total={activeCount}");
+        }
+        catch (Exception ex)
+        {
+            Log.LogInfo($"[RisingFame] ActiveItemList dump failed: {ex.Message}");
+        }
+    }
+
+    static string GetGameObjectListSummary(Il2CppSystem.Collections.Generic.List<GameObject>? list)
+    {
+        if (list == null) return "null";
+
+        var sb = new StringBuilder();
+        sb.Append("count=").Append(list.Count);
+        if (list.Count > 0)
+        {
+            sb.Append(" [");
+            int take = Math.Min(list.Count, 6);
+            for (int i = 0; i < take; i++)
+            {
+                if (i > 0) sb.Append(" | ");
+                GameObject? go = list[i];
+                sb.Append(go != null ? $"{go.name}:{go.activeInHierarchy}" : "null");
+            }
+
+            if (list.Count > take)
+                sb.Append(" | ...");
+            sb.Append(']');
+        }
+
+        return sb.ToString();
+    }
+
+    static GameObject? GetFirstGameObject(Il2CppSystem.Collections.Generic.List<GameObject>? list)
+    {
+        if (list == null || list.Count <= 0) return null;
+        return list[0];
+    }
+
+    static string DescribeGameObject(GameObject? go)
+    {
+        if (go == null) return "null";
+
+        int childCount = 0;
+        try { childCount = go.transform.childCount; } catch { }
+
+        return $"{GetTransformPath(go.transform)} activeSelf={go.activeSelf} active={go.activeInHierarchy} children={childCount} comps={GetComponentSummary(go)}";
+    }
+
+    static string DescribeTransform(Transform? transform)
+    {
+        if (transform == null) return "null";
+        return $"{GetTransformPath(transform)} children={transform.childCount}";
+    }
+
+    static string SafeToString(Func<string> getter)
+    {
+        try
+        {
+            return getter();
+        }
+        catch
+        {
+            return "?";
+        }
+    }
+
+    static string GetTransformPath(Transform? transform)
+    {
+        if (transform == null) return "null";
+
+        var parts = new System.Collections.Generic.List<string>();
+        Transform? current = transform;
+        int guard = 0;
+        while (current != null && guard++ < 32)
+        {
+            parts.Add(current.name);
+            current = current.parent;
+        }
+
+        parts.Reverse();
+        return string.Join("/", parts);
+    }
+
+    static string GetComponentSummary(GameObject go)
+    {
+        try
+        {
+            Component[] components = go.GetComponents<Component>();
+            if (components == null || components.Length == 0) return "-";
+
+            var sb = new StringBuilder();
+            int take = Math.Min(components.Length, 6);
+            for (int i = 0; i < take; i++)
+            {
+                if (i > 0) sb.Append(',');
+                Component? component = components[i];
+                sb.Append(component != null ? component.GetType().Name : "null");
+            }
+
+            if (components.Length > take)
+                sb.Append(",...");
+            return sb.ToString();
+        }
+        catch
+        {
+            return "?";
+        }
+    }
+
+    static void DumpHierarchy(GameObject root, int maxDepth, int maxChildren, string tag)
+    {
+        try
+        {
+            DumpHierarchyRecursive(root.transform, depth: 0, maxDepth, maxChildren, tag);
+        }
+        catch (Exception ex)
+        {
+            Log.LogInfo($"[RisingFame] {tag} hierarchy dump failed: {ex.Message}");
+        }
+    }
+
+    static void DumpHierarchyRecursive(Transform transform, int depth, int maxDepth, int maxChildren, string tag)
+    {
+        if (depth > maxDepth) return;
+
+        string indent = new string(' ', depth * 2);
+        GameObject go = transform.gameObject;
+        Log.LogInfo($"[RisingFame] {tag} {indent}- {go.name} activeSelf={go.activeSelf} active={go.activeInHierarchy} children={transform.childCount} comps={GetComponentSummary(go)}");
+
+        int take = Math.Min(transform.childCount, maxChildren);
+        for (int i = 0; i < take; i++)
+            DumpHierarchyRecursive(transform.GetChild(i), depth + 1, maxDepth, maxChildren, tag);
+
+        if (transform.childCount > take)
+            Log.LogInfo($"[RisingFame] {tag} {indent}  ... {transform.childCount - take} more children");
+    }
+
+    static bool IsAuctionExhibitVisible(PlotController plot)
+    {
+        try
+        {
+            if (IsAuctionChoosePanelActive())
+                return true;
+
+            if (GetPlotItemGridChildCount(plot) > 0)
+                return true;
+
+            if (plot.plotInteractItem != null || plot.plotInteractItemTempRecord != null)
+                return true;
+        }
+        catch { }
+
+        return false;
+    }
+
+    static void ClearPlotItemGridChildren(PlotController plot)
+    {
+        try
+        {
+            if (plot.plotItemGrid == null) return;
+
+            Transform grid = plot.plotItemGrid.transform;
+            for (int i = grid.childCount - 1; i >= 0; i--)
+            {
+                Transform child = grid.GetChild(i);
+                UnityEngine.Object.DestroyImmediate(child.gameObject);
+            }
+        }
+        catch { }
+    }
+
     static bool TryRefreshAuctionByCachedGenerate(PlotController plot, AuctionController? auction)
     {
         if (_lastAuctionTargetList == null) return false;
@@ -462,6 +787,187 @@ public class Plugin : BasePlugin
         }
 
         return false;
+    }
+
+    static void ScheduleAuctionRefreshStep(AuctionRefreshStep step, int frame)
+    {
+        _pendingAuctionStep = step;
+        _pendingAuctionSequenceFrame = frame;
+    }
+
+    static void ClearAuctionRefreshSequence()
+    {
+        _pendingAuctionStep = AuctionRefreshStep.None;
+        _pendingAuctionSequenceFrame = -1;
+    }
+
+    static void AdvanceAuctionRefreshSequence(int frame)
+    {
+        AuctionRefreshStep step = _pendingAuctionStep;
+        ClearAuctionRefreshSequence();
+
+        switch (step)
+        {
+            case AuctionRefreshStep.SingleShow:
+                TryRunPendingAuctionAutoOpen("single");
+                break;
+
+            case AuctionRefreshStep.ResetDisplay:
+                if (TryRunPendingAuctionResetDisplay())
+                    ScheduleAuctionRefreshStep(AuctionRefreshStep.ChooseClose, frame + 3);
+                break;
+
+            case AuctionRefreshStep.ChooseClose:
+                if (TryRunPendingAuctionChooseClose())
+                    ScheduleAuctionRefreshStep(AuctionRefreshStep.EnsureOpen, frame + 4);
+                break;
+
+            case AuctionRefreshStep.EnsureOpen:
+                TryRunPendingAuctionEnsureOpen();
+                break;
+        }
+    }
+
+    static bool TryRunPendingAuctionAutoOpen(string phase)
+    {
+        if (!_pendingAuctionReroll) return false;
+
+        PlotController? plot = PlotController.Instance;
+        if (plot == null || !IsAuctionPlotActive(plot))
+        {
+            CancelPendingAuctionRefresh("plot lost before reopen");
+            return false;
+        }
+
+        bool invoked = false;
+        SinglePlotChoiceData? choice = FindAuctionChoice(plot, "ShowAuctionItem");
+        if (choice != null)
+        {
+            PrepareAuctionChoiceContext(plot, choice);
+            invoked = TryInvokePlotChoiceCall(plot, choice);
+        }
+        else
+        {
+            try
+            {
+                plot.ShowAuctionItem();
+                invoked = true;
+            }
+            catch { }
+        }
+
+        if (invoked)
+            Log.LogInfo($"[RisingFame] Auction reroll {phase} show triggered.");
+        return invoked;
+    }
+
+    static bool TryRunPendingAuctionResetDisplay()
+    {
+        if (!_pendingAuctionReroll) return false;
+
+        PlotController? plot = PlotController.Instance;
+        if (plot == null || !IsAuctionPlotActive(plot))
+        {
+            CancelPendingAuctionRefresh("plot lost before reset");
+            return false;
+        }
+
+        try
+        {
+            ResetPlotItemDisplay(plot);
+            _pendingAuctionAwaitChooseClose = true;
+            Log.LogInfo("[RisingFame] Auction reroll reset display triggered.");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            CancelPendingAuctionRefresh($"reset display failed: {ex.Message}");
+            return false;
+        }
+    }
+
+    static bool TryRunPendingAuctionChooseClose()
+    {
+        if (!_pendingAuctionReroll || !_pendingAuctionAwaitChooseClose) return false;
+
+        PlotController? plot = PlotController.Instance;
+        if (plot == null || !IsAuctionPlotActive(plot))
+        {
+            CancelPendingAuctionRefresh("plot lost before close");
+            return false;
+        }
+
+        if (!IsAuctionChoosePanelActive())
+        {
+            _pendingAuctionAwaitChooseClose = false;
+            Log.LogInfo("[RisingFame] Auction choose panel already hidden.");
+            return true;
+        }
+
+        ChooseController? choose = ChooseController.Instance;
+        if (choose == null)
+        {
+            CancelPendingAuctionRefresh("choose controller missing");
+            return false;
+        }
+
+        try
+        {
+            choose.HideChoosePanel();
+            _pendingAuctionAwaitChooseClose = false;
+            Log.LogInfo("[RisingFame] Auction reroll choose close triggered.");
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    static bool TryRunPendingAuctionEnsureOpen()
+    {
+        if (!_pendingAuctionReroll) return false;
+
+        PlotController? plot = PlotController.Instance;
+        if (plot == null || !IsAuctionPlotActive(plot))
+        {
+            CancelPendingAuctionRefresh("plot lost before ensure open");
+            return false;
+        }
+
+        if (IsAuctionChoosePanelActive())
+        {
+            if (_pendingAuctionEnsureOpenRetries < 2)
+            {
+                _pendingAuctionEnsureOpenRetries++;
+                ScheduleAuctionRefreshStep(AuctionRefreshStep.EnsureOpen, Time.frameCount + 2);
+                Log.LogInfo($"[RisingFame] Auction ensure open deferred: panel still active (retry {_pendingAuctionEnsureOpenRetries}).");
+                return true;
+            }
+
+            Log.LogInfo("[RisingFame] Auction ensure open skipped: panel already active.");
+            return true;
+        }
+
+        _pendingAuctionEnsureOpenRetries = 0;
+        return TryRunPendingAuctionAutoOpen("ensure");
+    }
+
+    static bool IsAuctionChoosePanelActive()
+    {
+        try
+        {
+            ChooseController? choose = ChooseController.Instance;
+            if (choose == null) return false;
+
+            return IsPanelActive(choose.choosePanel)
+                || IsPanelActive(choose.chooseRoot)
+                || IsPanelActive(choose.itemList);
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     static bool TryRefreshEnhance()
@@ -574,14 +1080,16 @@ public class Plugin : BasePlugin
 
         try
         {
-            PropertyInfo? property = AccessTools.Property(type, name);
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
+            PropertyInfo? property = type.GetProperty(name, flags);
             if (property != null && property.CanWrite)
             {
                 property.SetValue(target, value);
                 return true;
             }
 
-            FieldInfo? field = AccessTools.Field(type, name);
+            FieldInfo? field = type.GetField(name, flags);
             if (field != null)
             {
                 field.SetValue(target, value);
@@ -630,6 +1138,9 @@ public class Plugin : BasePlugin
         if (_pendingAuctionReroll)
         {
             _pendingAuctionReroll = false;
+            _pendingAuctionAwaitChooseClose = false;
+            _pendingAuctionEnsureOpenRetries = 0;
+            ClearAuctionRefreshSequence();
             Log.LogInfo("[RisingFame] Auction reroll applied by native exhibit view.");
         }
     }
@@ -640,12 +1151,17 @@ public class Plugin : BasePlugin
 
         string beforeCached = GetItemListSummary(_lastAuctionTargetList);
         string beforeTemp = GetItemListSummary(plot.tempPlotShop);
+        AuctionController? auction = AuctionController.Instance;
+        string beforeShown = auction != null ? GetItemListSummary(auction.auctionItemList) : "null";
 
         if (_lastAuctionTargetList != null)
             ClearItemList(_lastAuctionTargetList);
 
         if (plot.tempPlotShop != null && !ReferenceEquals(plot.tempPlotShop, _lastAuctionTargetList))
             ClearItemList(plot.tempPlotShop);
+
+        if (auction != null)
+            ClearItemList(auction.auctionItemList);
 
         try
         {
@@ -659,7 +1175,15 @@ public class Plugin : BasePlugin
         }
         catch { }
 
-        Log.LogInfo($"[RisingFame] Auction reroll prepare cached {beforeCached} -> {GetItemListSummary(_lastAuctionTargetList)} | temp {beforeTemp} -> {GetItemListSummary(plot.tempPlotShop)}");
+        ClearPlotItemGridChildren(plot);
+
+        Log.LogInfo($"[RisingFame] Auction reroll prepare cached {beforeCached} -> {GetItemListSummary(_lastAuctionTargetList)} | temp {beforeTemp} -> {GetItemListSummary(plot.tempPlotShop)} | shown {beforeShown} -> {(auction != null ? GetItemListSummary(auction.auctionItemList) : "null")} | grid={GetPlotItemGridChildCount(plot)}");
+    }
+
+    internal static void OnChoosePanelClosed(string source)
+    {
+        if (!_pendingAuctionReroll) return;
+        Log.LogInfo($"[RisingFame] Auction choose panel closed via {source}.");
     }
 
     internal static string GetAuctionChoiceContext(PlotController plot)
@@ -675,14 +1199,15 @@ public class Plugin : BasePlugin
         {
             Type type = plot.GetType();
             object? value = null;
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
-            PropertyInfo? property = AccessTools.Property(type, memberName);
+            PropertyInfo? property = type.GetProperty(memberName, flags);
             if (property != null && property.CanRead)
                 value = property.GetValue(plot);
 
             if (value == null)
             {
-                FieldInfo? field = AccessTools.Field(type, memberName);
+                FieldInfo? field = type.GetField(memberName, flags);
                 if (field != null)
                     value = field.GetValue(plot);
             }
@@ -764,6 +1289,28 @@ public class Plugin : BasePlugin
     {
         return panel != null && panel.activeInHierarchy;
     }
+
+    internal static bool ShouldTraceAuctionRefresh()
+    {
+        return _pendingAuctionReroll
+            || _pendingAuctionAwaitChooseClose
+            || _pendingAuctionStep != AuctionRefreshStep.None;
+    }
+
+    static void CancelPendingAuctionRefresh(string reason)
+    {
+        bool hadPending = _pendingAuctionReroll
+            || _pendingAuctionAwaitChooseClose
+            || _pendingAuctionStep != AuctionRefreshStep.None;
+
+        _pendingAuctionReroll = false;
+        _pendingAuctionAwaitChooseClose = false;
+        _pendingAuctionEnsureOpenRetries = 0;
+        ClearAuctionRefreshSequence();
+
+        if (hadPending)
+            Log.LogInfo($"[RisingFame] Auction reroll canceled: {reason}");
+    }
 }
 
 [HarmonyPatch]
@@ -838,7 +1385,7 @@ static class ContributionPatches
         if (__0 <= 0f || !__1 || !Plugin.Enabled) return;
         try
         {
-            int lv = __instance.heroForceLv + 1; // 1-6 (武者~宗师)
+            int lv = __instance.heroForceLv + 1; // 1-6 (姝﹁€厏瀹楀笀)
             float fame = __instance.fame;
             bool isInner = (__2 == __instance.belongForceID);
             float rate = isInner ? (lv + fame / 1000f) * 0.5f : lv + fame / 1000f;
@@ -892,24 +1439,41 @@ static class AuctionTracePatches
     public static void GenerateAuctionItem_Pre(PlotController __instance, ItemListData __0, float __1, Il2CppSystem.Collections.Generic.List<int> __2, int __3)
     {
         Plugin.CacheAuctionGenerate(__0, __1, __2, __3);
-        Plugin.Log.LogInfo($"[RisingFame] Auction generate pre pool={Plugin.GetItemListSummary(__0)} shopLv={__1:0.##} itemNum={__3} ctx={Plugin.GetAuctionChoiceContext(__instance)}");
+        if (Plugin.ShouldTraceAuctionRefresh())
+            Plugin.Log.LogInfo($"[RisingFame] Auction generate pre pool={Plugin.GetItemListSummary(__0)} shopLv={__1:0.##} itemNum={__3} ctx={Plugin.GetAuctionChoiceContext(__instance)}");
     }
 
     public static void GenerateAuctionItem_Post(PlotController __instance, ItemListData __0, float __1, Il2CppSystem.Collections.Generic.List<int> __2, int __3)
     {
         Plugin.MarkAuctionGenerated();
-        Plugin.Log.LogInfo($"[RisingFame] Auction generate post pool={Plugin.GetItemListSummary(__0)} shopLv={__1:0.##} itemNum={__3} ctx={Plugin.GetAuctionChoiceContext(__instance)}");
+        if (Plugin.ShouldTraceAuctionRefresh())
+            Plugin.Log.LogInfo($"[RisingFame] Auction generate post pool={Plugin.GetItemListSummary(__0)} shopLv={__1:0.##} itemNum={__3} ctx={Plugin.GetAuctionChoiceContext(__instance)}");
     }
 
     public static void ShowAuctionItem_Pre(PlotController __instance)
     {
         Plugin.PreparePendingAuctionReroll(__instance);
-        Plugin.Log.LogInfo($"[RisingFame] ShowAuctionItem pre pool={Plugin.GetItemListSummary(__instance.tempPlotShop)} ctx={Plugin.GetAuctionChoiceContext(__instance)}");
+        if (Plugin.ShouldTraceAuctionRefresh())
+            Plugin.Log.LogInfo($"[RisingFame] ShowAuctionItem pre pool={Plugin.GetItemListSummary(__instance.tempPlotShop)} ctx={Plugin.GetAuctionChoiceContext(__instance)}");
     }
 
     public static void ShowAuctionItem_Post(PlotController __instance)
     {
-        Plugin.Log.LogInfo($"[RisingFame] ShowAuctionItem post pool={Plugin.GetItemListSummary(__instance.tempPlotShop)} ctx={Plugin.GetAuctionChoiceContext(__instance)}");
+        if (Plugin.ShouldTraceAuctionRefresh())
+            Plugin.Log.LogInfo($"[RisingFame] ShowAuctionItem post pool={Plugin.GetItemListSummary(__instance.tempPlotShop)} ctx={Plugin.GetAuctionChoiceContext(__instance)}");
     }
 }
 
+[HarmonyPatch]
+static class ChoosePanelTracePatches
+{
+    public static void HideChoosePanel_Post(ChooseController __instance)
+    {
+        Plugin.OnChoosePanelClosed("HideChoosePanel");
+    }
+
+    public static void UnshowChoosePanel_Post(ChooseController __instance)
+    {
+        Plugin.OnChoosePanelClosed("UnshowChoosePanel");
+    }
+}
