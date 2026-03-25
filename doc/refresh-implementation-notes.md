@@ -8,7 +8,7 @@
 
 相关补充：
 
-- 如果你想看拍卖“查看展品”这条链路从误判、探针、时序试错到最终稳定方案的完整复盘，请继续看：[拍卖展品刷新复盘与工程教训](./auction-refresh-retrospective.md)
+- 如果你想看拍卖“查看展品”这条链路从误判、探针、时序试错到最终稳定方案的完整复盘，请继续看：[拍卖刷新复盘与工程教训](./auction-refresh-retrospective.md)
 
 这次工作的目标很明确：
 
@@ -26,11 +26,18 @@
 - `=`：插件 ON / OFF
 - `Alt+R`：尝试刷新当前支持的界面
 
-当前确认支持的界面有三类：
+当前对外按三类能力描述：
 
-- 突破词条
-- 神兵 / 特殊强化词条
-- 拍卖重开
+- 突破刷新
+- 拍卖刷新
+- 锻造刷新
+
+如果按代码入口拆分，实际命中的是多条原生控制器 / 流程入口：
+
+- `SpeEnhanceEquipController`
+- `BreakThroughController`
+- 拍卖事件链路下的 `PlotController` / `ChooseController`
+- `CraftUIController` / `PlotController.FinishCraft()`
 
 插件的输入路径仍然沿用当前项目已验证稳定的方案：
 
@@ -253,32 +260,41 @@
 - 复用了原生词条展示入口
 - 刷新后还能同步额外概率 / 加成信息
 
-### 4. 拍卖重开
+### 4. 拍卖刷新
 
 最终逻辑：
 
-1. `AuctionController.Instance != null`
-2. `instance.auctionPanel.activeInHierarchy`
-3. `PlotController.Instance != null`
-4. `PlotController.Instance.tempPlotShop != null`
-5. 调用：
-
-```csharp
-instance.RestartAuction(
-    instance.heroList,
-    plot.tempPlotShop,
-    instance.playerSellItem,
-    instance.endMatchCallPlot,
-    instance.auctionDifficulty,
-    instance.havePlayer,
-    instance.auctionKeeper);
-```
+1. 仍然基于当前拍卖事件的原生 `PlotController` / `ChooseController` 上下文
+2. 识别并复用 `ShowAuctionItem` 对应的原生选择入口
+3. 在按键后只走一段很短的原生时序：重置展示容器、关闭选择面板、再确保展品界面最终重新打开
+4. 让拍品重新掷骰，同时避免“只复制旧展品”或“累计旧容器内容”
 
 优点：
 
-- 直接回到原生拍卖重开方法
-- 参数类型、顺序和来源都与控制器真实签名一致
-- 不需要自己重写拍卖流程
+- 不重写拍卖业务链，而是复用当前事件上下文里的原生入口
+- 重点解决了“随机数据”和“显示容器”不同步的问题
+- 最终表现更接近玩家手动关闭再重新查看展品
+
+拍卖这部分的完整逆向、误判与时序复盘已单独整理在：
+
+- [拍卖刷新复盘与工程教训](./auction-refresh-retrospective.md)
+
+### 5. 锻造刷新
+
+最终逻辑：
+
+1. `CraftUIController.Instance != null`
+2. `instance.creaftUIPanel.activeInHierarchy`
+3. `instance.craftResultList != null && instance.craftResultList.Count > 0`
+4. `PlotController.Instance != null`
+5. 先清空当前结果列表，再调用 `plot.FinishCraft()`
+
+优点：
+
+- 命中了“打造耗时结束后”的结果生成阶段
+- 不会重新点击打造确认，不会再走一轮打造耗时
+- 不会因为刷新而重复扣钱
+- 逻辑足够轻，只在结果界面按键时触发
 
 ## [08] 当前实现为什么足够轻
 
@@ -288,13 +304,13 @@ instance.RestartAuction(
 - 不往场景里注入自定义组件
 - 不做后台扫描查找界面
 - 不做反射式“盲猜路径”重建流程
-- 不额外维护复杂状态机
+- 不维护常驻后台状态机
 
 目前的刷新系统只做三件事：
 
 1. 等用户按键
 2. 判断当前是否处在支持界面
-3. 调用对应原生控制器的现成方法
+3. 调用对应原生控制器的现成方法，必要时只走一段短时序原生流程
 
 因此它的运行成本几乎全部集中在“按键瞬间”，不会在平时持续吞性能。
 
@@ -340,6 +356,13 @@ instance.RestartAuction(
 - 当前 UI 上显示的缓存是谁
 - 真正驱动流程重开的源数据是谁
 
+如果是锻造 / 重铸这类系统，还要先确认：
+
+- 随机结果是在“点击确认时”生成
+- 还是在“耗时结束 / 结算完成时”生成
+
+这个判断一旦错位，就会出现“刷新一次，重复扣一次钱 / 重走一次时间”的假成功实现。
+
 ### 4. 原生提示层仍然值得继续研究
 
 这次刷新功能只做了蜂鸣和简短日志，没有接入更丰富的原生提示。
@@ -361,7 +384,7 @@ instance.RestartAuction(
 
 最终结论可以概括成三句话：
 
-1. 特殊强化、突破、拍卖都存在可复用的原生控制器入口
+1. 特殊强化、突破、拍卖、锻造都存在可复用的原生控制器入口
 2. IL2CPP interop 下要优先按真实属性 / 方法签名做强类型调用
 3. 只在按键瞬间触发原生流程，才符合这个项目当前的稳定性原则
 

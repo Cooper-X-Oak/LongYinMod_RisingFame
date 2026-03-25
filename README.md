@@ -72,26 +72,34 @@
 
 当前支持：
 
-- 突破词条
-- 神兵 / 特殊强化词条
-- 拍卖重开
+- 突破刷新
+- 拍卖刷新
+- 锻造刷新
 
 演示：
 
 <table>
   <tr>
-    <td align="center" width="50%">
-      <img src="./assets/refresh-demo.gif" alt="一键刷新武学词条演示" width="92%">
+    <td align="center" width="33.33%">
+      <img src="./assets/refresh-demo.gif" alt="突破刷新演示" width="92%">
       <br>
-      <sub>武学 / 突破词条刷新</sub>
+      <sub>突破刷新</sub>
     </td>
-    <td align="center" width="50%">
-      <img src="./assets/测试刷新拍卖展品.gif" alt="拍卖展品刷新演示" width="92%">
+    <td align="center" width="33.33%">
+      <img src="./assets/测试刷新拍卖展品.gif" alt="拍卖刷新演示" width="92%">
       <br>
-      <sub>拍卖展品刷新</sub>
+      <sub>拍卖刷新</sub>
+    </td>
+    <td align="center" width="33.33%">
+      <img src="./assets/测试刷新锻造.gif" alt="锻造刷新演示" width="92%">
+      <br>
+      <sub>锻造刷新</sub>
     </td>
   </tr>
 </table>
+
+> [!TIP]
+> 锻造刷新只在“三选一结果界面”生效，不会重新扣钱，也不会再走一轮打造耗时。
 
 - 技术说明：[doc/refresh-implementation-notes.md](./doc/refresh-implementation-notes.md)
 - 拍卖专项复盘：[doc/auction-refresh-retrospective.md](./doc/auction-refresh-retrospective.md)
@@ -222,14 +230,14 @@
 │  ├─ 原生控制器入口
 │  ├─ 最终实现路径
 │  └─ 未来启发
-└─ [07.3.2] 拍卖展品刷新复盘与工程教训
+└─ [07.3.2] 拍卖刷新复盘与工程教训
    ├─ 问题时间线
    ├─ 当前稳定方案
    ├─ 工程教训
    └─ 可复用流程
 </pre>
 
-- 主文档：[一键刷新功能逆向与实现说明](./doc/refresh-implementation-notes.md)、[拍卖展品刷新复盘与工程教训](./doc/auction-refresh-retrospective.md)
+- 主文档：[一键刷新功能逆向与实现说明](./doc/refresh-implementation-notes.md)、[拍卖刷新复盘与工程教训](./doc/auction-refresh-retrospective.md)
 - 直达章节：[初版失败现象](./doc/refresh-implementation-notes.md#refresh-first-failure) / [原生控制器入口](./doc/refresh-implementation-notes.md#refresh-native-controllers) / [最终实现路径](./doc/refresh-implementation-notes.md#refresh-final-path) / [未来启发](./doc/refresh-implementation-notes.md#refresh-future)
 - 直达章节：[问题时间线](./doc/auction-refresh-retrospective.md#auction-retro-timeline) / [当前稳定方案](./doc/auction-refresh-retrospective.md#auction-retro-current) / [工程教训](./doc/auction-refresh-retrospective.md#auction-retro-lessons) / [可复用流程](./doc/auction-refresh-retrospective.md#auction-retro-playbook)
 
