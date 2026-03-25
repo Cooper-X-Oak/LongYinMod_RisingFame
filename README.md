@@ -112,58 +112,59 @@
 
 ### [08.1] 需求侧
 
-#### [08.1.1] [社区需求与功能提案](./doc/mod-demand-proposals.md)
+> 为什么有这组：先确认玩家到底在要什么，再决定版本方向、优先级和哪些功能值得继续投入。
 
-> 为什么有这篇：先把社区高频需求、版本路线和优先级讲清楚，避免功能一路加下去却偏离真正高价值方向。
+[08.1] 需求侧<br>
+|-- [08.1.1 社区需求与功能提案](./doc/mod-demand-proposals.md)<br>
+&nbsp;&nbsp;&nbsp;|-- [需求归类](./doc/mod-demand-proposals.md#demand-categories)<br>
+&nbsp;&nbsp;&nbsp;|-- [提案优先级](./doc/mod-demand-proposals.md#demand-priority)<br>
+&nbsp;&nbsp;&nbsp;|-- [P0 细化定义](./doc/mod-demand-proposals.md#demand-p0-scope)<br>
+&nbsp;&nbsp;&nbsp;+-- [落地顺序](./doc/mod-demand-proposals.md#demand-roadmap)<br>
++-- [08.1.2 Bilibili 需求二次分析](./doc/bilibili-demand-analysis.md)<br>
+&nbsp;&nbsp;&nbsp;|-- [重点样本](./doc/bilibili-demand-analysis.md#bili-analysis-samples)<br>
+&nbsp;&nbsp;&nbsp;|-- [二次结论](./doc/bilibili-demand-analysis.md#bili-analysis-conclusion)<br>
+&nbsp;&nbsp;&nbsp;|-- [路线启发](./doc/bilibili-demand-analysis.md#bili-analysis-insights)<br>
+&nbsp;&nbsp;&nbsp;+-- [后续研究方向](./doc/bilibili-demand-analysis.md#bili-analysis-next)
 
-- [需求归类](./doc/mod-demand-proposals.md#demand-categories)
-- [提案优先级](./doc/mod-demand-proposals.md#demand-priority)
-- [P0 细化定义](./doc/mod-demand-proposals.md#demand-p0-scope)
-- [落地顺序](./doc/mod-demand-proposals.md#demand-roadmap)
-
-#### [08.1.2] [Bilibili 需求二次分析](./doc/bilibili-demand-analysis.md)
-
-> 为什么有这篇：把 B 站视频标题、字幕和评论区里的真实诉求再细化一轮，补足“提案层”之外的用户声音。
-
-- [重点样本](./doc/bilibili-demand-analysis.md#bili-analysis-samples)
-- [二次结论](./doc/bilibili-demand-analysis.md#bili-analysis-conclusion)
-- [路线启发](./doc/bilibili-demand-analysis.md#bili-analysis-insights)
-- [后续研究方向](./doc/bilibili-demand-analysis.md#bili-analysis-next)
+---
 
 ### [08.2] 技术侧
 
-#### [08.2.1] [原生 Hook / 管线研究](./doc/native-hook-research.md)
+> 为什么有这组：把原生实现拆清楚，知道真实值在哪入账、流程在哪推进、提示该挂在哪一层。
 
-> 为什么有这篇：把原生实现拆成真实入账层、流程层和展示层，后续加功能时不再靠猜。
+[08.2] 技术侧<br>
+|-- [08.2.1 原生 Hook / 管线研究](./doc/native-hook-research.md)<br>
+&nbsp;&nbsp;&nbsp;|-- [稳定核心挂点](./doc/native-hook-research.md#native-core-hooks)<br>
+&nbsp;&nbsp;&nbsp;|-- [武学经验管线](./doc/native-hook-research.md#native-fight-pipeline)<br>
+&nbsp;&nbsp;&nbsp;|-- [原生通知管线](./doc/native-hook-research.md#native-notify-pipeline)<br>
+&nbsp;&nbsp;&nbsp;+-- [挂点建议](./doc/native-hook-research.md#native-hook-suggestions)<br>
++-- [08.2.2 P0 低风险减肝 / 交互提效包研究](./doc/p0-qol-pipe-research.md)<br>
+&nbsp;&nbsp;&nbsp;|-- [目标拆分](./doc/p0-qol-pipe-research.md#p0-target-split)<br>
+&nbsp;&nbsp;&nbsp;|-- [读书流程研究](./doc/p0-qol-pipe-research.md#p0-read-book)<br>
+&nbsp;&nbsp;&nbsp;|-- [原生提示管线](./doc/p0-qol-pipe-research.md#p0-native-feedback)<br>
+&nbsp;&nbsp;&nbsp;+-- [实现优先级建议](./doc/p0-qol-pipe-research.md#p0-priority)
 
-- [稳定核心挂点](./doc/native-hook-research.md#native-core-hooks)
-- [武学经验管线](./doc/native-hook-research.md#native-fight-pipeline)
-- [原生通知管线](./doc/native-hook-research.md#native-notify-pipeline)
-- [挂点建议](./doc/native-hook-research.md#native-hook-suggestions)
-
-#### [08.2.2] [P0 低风险减肝 / 交互提效包研究](./doc/p0-qol-pipe-research.md)
-
-> 为什么有这篇：把“低风险、低负担”的做法单独收敛出来，避免后续实现一上来就走重逻辑和高风险路线。
-
-- [目标拆分](./doc/p0-qol-pipe-research.md#p0-target-split)
-- [读书流程研究](./doc/p0-qol-pipe-research.md#p0-read-book)
-- [原生提示管线](./doc/p0-qol-pipe-research.md#p0-native-feedback)
-- [实现优先级建议](./doc/p0-qol-pipe-research.md#p0-priority)
+---
 
 ### [08.3] 实现侧
 
-#### [08.3.1] [一键刷新功能逆向与实现说明](./doc/refresh-implementation-notes.md)
+> 为什么有这组：把已经落地的功能完整复盘下来，后面继续做新功能时可以复用同一套方法论。
 
-> 为什么有这篇：把 `1.8` 一键刷新从踩坑、逆向到最终落地完整记下来，方便以后复用这套方法做别的功能。
+[08.3] 实现侧<br>
++-- [08.3.1 一键刷新功能逆向与实现说明](./doc/refresh-implementation-notes.md)<br>
+&nbsp;&nbsp;&nbsp;|-- [初版失败现象](./doc/refresh-implementation-notes.md#refresh-first-failure)<br>
+&nbsp;&nbsp;&nbsp;|-- [原生控制器入口](./doc/refresh-implementation-notes.md#refresh-native-controllers)<br>
+&nbsp;&nbsp;&nbsp;|-- [最终实现路径](./doc/refresh-implementation-notes.md#refresh-final-path)<br>
+&nbsp;&nbsp;&nbsp;+-- [未来启发](./doc/refresh-implementation-notes.md#refresh-future)
 
-- [初版失败现象](./doc/refresh-implementation-notes.md#refresh-first-failure)
-- [原生控制器入口](./doc/refresh-implementation-notes.md#refresh-native-controllers)
-- [最终实现路径](./doc/refresh-implementation-notes.md#refresh-final-path)
-- [未来启发](./doc/refresh-implementation-notes.md#refresh-future)
+---
 
 ### [08.4] 资料层
 
-- 原始抓取资料包见：[doc/bilibili/README.md](./doc/bilibili/README.md)
+> 为什么有这组：把原始抓取样本和素材沉到底层，既保留可追溯性，也不让 README 主页被原始资料淹没。
+
+[08.4] 资料层<br>
++-- [Bilibili 原始抓取资料包](./doc/bilibili/README.md)
 
 ## License
 
