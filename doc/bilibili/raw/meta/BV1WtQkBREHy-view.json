@@ -1,0 +1,296 @@
+{
+  "code": 0,
+  "message": "OK",
+  "ttl": 1,
+  "data": {
+    "bvid": "BV1WtQkBREHy",
+    "aid": 116285534899994,
+    "videos": 1,
+    "tid": 21,
+    "tid_v2": 2079,
+    "tname": "",
+    "tname_v2": "",
+    "copyright": 1,
+    "pic": "http://i0.hdslb.com/bfs/archive/72a3fadcd2675dfb16af5482417c9d1d8d54a9a8.jpg",
+    "title": "【龙胤立志传】AI互动MOD",
+    "pubdate": 1774400400,
+    "ctime": 1774376558,
+    "desc": "大家好啊，好久不见。\n龙胤立志传也是发布了\n掉了好几天头发\n也是开发出来了AI互动Mod\n\nPS：只是演示",
+    "desc_v2": [
+      {
+        "raw_text": "大家好啊，好久不见。\n龙胤立志传也是发布了\n掉了好几天头发\n也是开发出来了AI互动Mod\n\nPS：只是演示",
+        "type": 1,
+        "biz_id": 0
+      }
+    ],
+    "state": 0,
+    "duration": 46,
+    "mission_id": 4063830,
+    "rights": {
+      "bp": 0,
+      "elec": 0,
+      "download": 1,
+      "movie": 0,
+      "pay": 0,
+      "hd5": 0,
+      "no_reprint": 1,
+      "autoplay": 1,
+      "ugc_pay": 0,
+      "is_cooperation": 0,
+      "ugc_pay_preview": 0,
+      "no_background": 0,
+      "clean_mode": 0,
+      "is_stein_gate": 0,
+      "is_360": 0,
+      "no_share": 0,
+      "arc_pay": 0,
+      "free_watch": 0
+    },
+    "owner": {
+      "mid": 3546802502502649,
+      "name": "Moder曹老板",
+      "face": "https://i1.hdslb.com/bfs/face/ee956ca7818475bd8b74c8edcec39b87acafae59.jpg"
+    },
+    "stat": {
+      "aid": 116285534899994,
+      "view": 1435,
+      "danmaku": 0,
+      "reply": 23,
+      "favorite": 28,
+      "coin": 28,
+      "share": 4,
+      "now_rank": 0,
+      "his_rank": 0,
+      "like": 50,
+      "dislike": 0,
+      "evaluation": "",
+      "vt": 0
+    },
+    "argue_info": {
+      "argue_msg": "",
+      "argue_type": 0,
+      "argue_link": ""
+    },
+    "dynamic": "大家好啊，好久不见。\n龙胤立志传也是发布了\n掉了好几天头发\n也是开发出来了AI互动Mod\n\nPS：只是演示",
+    "cid": 36952935569,
+    "dimension": {
+      "width": 3984,
+      "height": 2158,
+      "rotate": 0
+    },
+    "season_id": 7747381,
+    "premiere": null,
+    "teenage_mode": 1,
+    "is_chargeable_season": false,
+    "is_story": false,
+    "is_upower_exclusive": false,
+    "is_upower_play": false,
+    "is_upower_preview": false,
+    "enable_vt": 0,
+    "vt_display": "",
+    "is_upower_exclusive_with_qa": false,
+    "no_cache": false,
+    "pages": [
+      {
+        "cid": 36952935569,
+        "page": 1,
+        "from": "vupload",
+        "part": "【龙胤立志传】AI互动MOD",
+        "duration": 46,
+        "vid": "",
+        "weblink": "",
+        "dimension": {
+          "width": 3984,
+          "height": 2158,
+          "rotate": 0
+        },
+        "first_frame": "http://i1.hdslb.com/bfs/storyff/_00000r2xp7t4mfv5f1yexvjxss9qbjb_firsti.jpg",
+        "ctime": 1774376558
+      }
+    ],
+    "subtitle": {
+      "allow_submit": false,
+      "list": [
+        {
+          "id": 1981608674090765568,
+          "lan": "ai-zh",
+          "lan_doc": "中文",
+          "is_lock": false,
+          "subtitle_url": "",
+          "type": 1,
+          "id_str": "1981608674090765568",
+          "ai_type": 0,
+          "ai_status": 2,
+          "subtitle_height": null,
+          "author": {
+            "mid": 0,
+            "name": "",
+            "sex": "",
+            "face": "",
+            "sign": "",
+            "rank": 0,
+            "birthday": 0,
+            "is_fake_account": 0,
+            "is_deleted": 0,
+            "in_reg_audit": 0,
+            "is_senior_member": 0,
+            "name_render": null,
+            "handle": ""
+          }
+        }
+      ]
+    },
+    "ugc_season": {
+      "id": 7747381,
+      "title": "龙胤立志传MOD",
+      "cover": "https://archive.biliimg.com/bfs/archive/80fde1b3ac23ebb4984830d77e5cb614ae90510d.jpg",
+      "mid": 3546802502502649,
+      "intro": "龙胤立志传MOD",
+      "sign_state": 0,
+      "attribute": 156,
+      "sections": [
+        {
+          "season_id": 7747381,
+          "id": 8604278,
+          "title": "正片",
+          "type": 1,
+          "episodes": [
+            {
+              "season_id": 7747381,
+              "section_id": 8604278,
+              "id": 184551916,
+              "aid": 116285534899994,
+              "cid": 36952935569,
+              "title": "【龙胤立志传】AI互动MOD",
+              "attribute": 0,
+              "arc": {
+                "aid": 116285534899994,
+                "videos": 0,
+                "type_id": 0,
+                "type_name": "",
+                "copyright": 0,
+                "pic": "http://i0.hdslb.com/bfs/archive/72a3fadcd2675dfb16af5482417c9d1d8d54a9a8.jpg",
+                "title": "【龙胤立志传】AI互动MOD",
+                "pubdate": 1774400400,
+                "ctime": 1774400400,
+                "desc": "",
+                "state": 0,
+                "duration": 46,
+                "rights": {
+                  "bp": 0,
+                  "elec": 0,
+                  "download": 0,
+                  "movie": 0,
+                  "pay": 0,
+                  "hd5": 0,
+                  "no_reprint": 0,
+                  "autoplay": 0,
+                  "ugc_pay": 0,
+                  "is_cooperation": 0,
+                  "ugc_pay_preview": 0,
+                  "arc_pay": 0,
+                  "free_watch": 0
+                },
+                "author": {
+                  "mid": 3546802502502649,
+                  "name": "Moder曹老板",
+                  "face": "https://i1.hdslb.com/bfs/face/ee956ca7818475bd8b74c8edcec39b87acafae59.jpg"
+                },
+                "stat": {
+                  "aid": 116285534899994,
+                  "view": 1435,
+                  "danmaku": 0,
+                  "reply": 23,
+                  "fav": 28,
+                  "coin": 28,
+                  "share": 4,
+                  "now_rank": 0,
+                  "his_rank": 0,
+                  "like": 50,
+                  "dislike": 0,
+                  "evaluation": "",
+                  "argue_msg": "",
+                  "vt": 0,
+                  "vv": 1435
+                },
+                "dynamic": "",
+                "dimension": {
+                  "width": 0,
+                  "height": 0,
+                  "rotate": 0
+                },
+                "desc_v2": null,
+                "is_chargeable_season": false,
+                "is_blooper": false,
+                "enable_vt": 0,
+                "vt_display": "",
+                "type_id_v2": 0,
+                "type_name_v2": "",
+                "is_lesson_video": 0
+              },
+              "page": {
+                "cid": 36952935569,
+                "page": 1,
+                "from": "vupload",
+                "part": "【龙胤立志传】AI互动MOD",
+                "duration": 46,
+                "vid": "",
+                "weblink": "",
+                "dimension": {
+                  "width": 3984,
+                  "height": 2158,
+                  "rotate": 0
+                }
+              },
+              "bvid": "BV1WtQkBREHy",
+              "pages": [
+                {
+                  "cid": 36952935569,
+                  "page": 1,
+                  "from": "vupload",
+                  "part": "【龙胤立志传】AI互动MOD",
+                  "duration": 46,
+                  "vid": "",
+                  "weblink": "",
+                  "dimension": {
+                    "width": 3984,
+                    "height": 2158,
+                    "rotate": 0
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "stat": {
+        "season_id": 7747381,
+        "view": 1425,
+        "danmaku": 0,
+        "reply": 23,
+        "fav": 28,
+        "coin": 28,
+        "share": 4,
+        "now_rank": 0,
+        "his_rank": 0,
+        "like": 50,
+        "vt": 0,
+        "vv": 0
+      },
+      "ep_count": 1,
+      "season_type": 1,
+      "is_pay_season": false,
+      "enable_vt": 0
+    },
+    "is_season_display": true,
+    "user_garb": {
+      "url_image_ani_cut": "https://i0.hdslb.com/bfs/garb/a041e754845c9cdbe39fa065acda435f7cf064cf.bin"
+    },
+    "honor_reply": {},
+    "like_icon": "",
+    "need_jump_bv": false,
+    "disable_show_up_info": false,
+    "is_story_play": 1,
+    "is_view_self": false
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "code": 0,
+  "message": "OK",
+  "ttl": 1,
+  "data": {
+    "cursor": {
+      "is_begin": true,
+      "prev": 0,
+      "next": 3,
+      "is_end": true,
+      "pagination_reply": {},
+      "session_id": "",
+      "mode": 3,
+      "mode_text": "",
+      "all_count": 28,
+      "support_mode": [
+        2,
+        3
+      ],
+      "name": "热门评论"
+    },
+    "replies": [],
+    "top": {
+      "admin": null,
+      "upper": null,
+      "vote": null
+    },
+    "top_replies": null,
+    "effects": {
+      "preloading": ""
+    },
+    "assist": 0,
+    "blacklist": 0,
+    "vote": 0,
+    "config": {
+      "showtopic": 1,
+      "show_up_flag": true,
+      "read_only": false
+    },
+    "upper": {
+      "mid": 29599758
+    },
+    "control": {
+      "input_disable": false,
+      "root_input_text": "这里需要一条查重率0%的评论",
+      "child_input_text": "这里需要一条查重率0%的评论",
+      "giveup_input_text": "不发没关系，请继续友善哦~",
+      "screenshot_icon_state": 1,
+      "upload_picture_icon_state": 1,
+      "answer_guide_text": "需要升级成为lv2会员后才可以评论，先去答题转正吧！",
+      "answer_guide_icon_url": "http://i0.hdslb.com/bfs/emote/96940d16602cacbbac796245b7bb99fa9b5c970c.png",
+      "answer_guide_ios_url": "https://www.bilibili.com/h5/newbie/entry?navhide=1&re_src=12",
+      "answer_guide_android_url": "https://www.bilibili.com/h5/newbie/entry?navhide=1&re_src=6",
+      "bg_text": "",
+      "empty_page": null,
+      "show_type": 1,
+      "show_text": "",
+      "web_selection": false,
+      "disable_jump_emote": false,
+      "enable_charged": false,
+      "enable_cm_biz_helper": false,
+      "preload_resources": null
+    },
+    "note": 1,
+    "callbacks": {}
+  }
+}

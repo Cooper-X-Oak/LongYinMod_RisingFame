@@ -1,0 +1,152 @@
+{
+  "code": 0,
+  "message": "OK",
+  "ttl": 1,
+  "data": {
+    "bvid": "BV1bEQ9BhEme",
+    "aid": 116276542375190,
+    "videos": 1,
+    "tid": 17,
+    "tid_v2": 2079,
+    "tname": "",
+    "tname_v2": "",
+    "copyright": 1,
+    "pic": "http://i2.hdslb.com/bfs/archive/7f0193c43e2c462f9bce540aa239dd25ed84ef23.jpg",
+    "title": "龙胤立志传120项菜单修改器",
+    "pubdate": 1774239268,
+    "ctime": 1774239269,
+    "desc": "仅用于单机游戏学习交流，产生的任何风险自负。\nhttps://wwatm.lanzn.com/b018881rhc\n密码:6666\n感觉好用的话三连支持一下 如果有bug请在评论区反馈\n游戏更新修改器可能会失效崩溃\n搜索首字母搜索 例如姜映泉 就搜jyq 以此类推",
+    "desc_v2": [
+      {
+        "raw_text": "仅用于单机游戏学习交流，产生的任何风险自负。\nhttps://wwatm.lanzn.com/b018881rhc\n密码:6666\n感觉好用的话三连支持一下 如果有bug请在评论区反馈\n游戏更新修改器可能会失效崩溃\n搜索首字母搜索 例如姜映泉 就搜jyq 以此类推",
+        "type": 1,
+        "biz_id": 0
+      }
+    ],
+    "state": 0,
+    "duration": 226,
+    "rights": {
+      "bp": 0,
+      "elec": 0,
+      "download": 1,
+      "movie": 0,
+      "pay": 0,
+      "hd5": 0,
+      "no_reprint": 1,
+      "autoplay": 1,
+      "ugc_pay": 0,
+      "is_cooperation": 0,
+      "ugc_pay_preview": 0,
+      "no_background": 0,
+      "clean_mode": 0,
+      "is_stein_gate": 0,
+      "is_360": 0,
+      "no_share": 0,
+      "arc_pay": 0,
+      "free_watch": 0
+    },
+    "owner": {
+      "mid": 1471261529,
+      "name": "剑鸦Jy",
+      "face": "https://i2.hdslb.com/bfs/face/d6495e1a7a67f7aba0d1ae223a42e0445b2dcd2d.jpg"
+    },
+    "stat": {
+      "aid": 116276542375190,
+      "view": 5060,
+      "danmaku": 0,
+      "reply": 192,
+      "favorite": 189,
+      "coin": 263,
+      "share": 7,
+      "now_rank": 0,
+      "his_rank": 0,
+      "like": 212,
+      "dislike": 0,
+      "evaluation": "",
+      "vt": 0
+    },
+    "argue_info": {
+      "argue_msg": "",
+      "argue_type": 0,
+      "argue_link": ""
+    },
+    "dynamic": "",
+    "cid": 36900898800,
+    "dimension": {
+      "width": 3840,
+      "height": 2160,
+      "rotate": 0
+    },
+    "premiere": null,
+    "teenage_mode": 1,
+    "is_chargeable_season": false,
+    "is_story": false,
+    "is_upower_exclusive": false,
+    "is_upower_play": false,
+    "is_upower_preview": false,
+    "enable_vt": 0,
+    "vt_display": "",
+    "is_upower_exclusive_with_qa": false,
+    "no_cache": false,
+    "pages": [
+      {
+        "cid": 36900898800,
+        "page": 1,
+        "from": "vupload",
+        "part": "龙胤立志传120项菜单修改器",
+        "duration": 226,
+        "vid": "",
+        "weblink": "",
+        "dimension": {
+          "width": 3840,
+          "height": 2160,
+          "rotate": 0
+        },
+        "first_frame": "http://i1.hdslb.com/bfs/storyff/_00002m3nlbh857ab32k82scj86a4z0b_firsti.jpg",
+        "ctime": 1774239269
+      }
+    ],
+    "subtitle": {
+      "allow_submit": false,
+      "list": [
+        {
+          "id": 1980457032708644608,
+          "lan": "ai-zh",
+          "lan_doc": "中文",
+          "is_lock": false,
+          "subtitle_url": "",
+          "type": 1,
+          "id_str": "1980457032708644608",
+          "ai_type": 0,
+          "ai_status": 2,
+          "subtitle_height": null,
+          "author": {
+            "mid": 0,
+            "name": "",
+            "sex": "",
+            "face": "",
+            "sign": "",
+            "rank": 0,
+            "birthday": 0,
+            "is_fake_account": 0,
+            "is_deleted": 0,
+            "in_reg_audit": 0,
+            "is_senior_member": 0,
+            "name_render": null,
+            "handle": ""
+          }
+        }
+      ]
+    },
+    "is_season_display": false,
+    "user_garb": {
+      "url_image_ani_cut": "https://i0.hdslb.com/bfs/garb/a041e754845c9cdbe39fa065acda435f7cf064cf.bin"
+    },
+    "honor_reply": {},
+    "like_icon": "",
+    "need_jump_bv": false,
+    "disable_show_up_info": false,
+    "is_story_play": 1,
+    "is_view_self": false
+  }
+}

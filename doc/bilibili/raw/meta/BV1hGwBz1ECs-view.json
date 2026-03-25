@@ -1,0 +1,152 @@
+{
+  "code": 0,
+  "message": "OK",
+  "ttl": 1,
+  "data": {
+    "bvid": "BV1hGwBz1ECs",
+    "aid": 116251510706639,
+    "videos": 1,
+    "tid": 17,
+    "tid_v2": 2079,
+    "tname": "",
+    "tname_v2": "",
+    "copyright": 1,
+    "pic": "http://i1.hdslb.com/bfs/archive/a580f7968157b2e7ac38307787a824a0abdfd80d.jpg",
+    "title": "【龙胤立志传】 模组框架 以及 UnityExplorer 安装教程",
+    "pubdate": 1773857552,
+    "ctime": 1773857552,
+    "desc": "UnityExplorer：https://github.com/GrahamKracker/UnityExplorer/releases/tag/4.9.4\n\nMelonLoader：https://github.com/LavaGang/MelonLoader/releases/tag/v0.7.2",
+    "desc_v2": [
+      {
+        "raw_text": "UnityExplorer：https://github.com/GrahamKracker/UnityExplorer/releases/tag/4.9.4\n\nMelonLoader：https://github.com/LavaGang/MelonLoader/releases/tag/v0.7.2",
+        "type": 1,
+        "biz_id": 0
+      }
+    ],
+    "state": 0,
+    "duration": 101,
+    "rights": {
+      "bp": 0,
+      "elec": 0,
+      "download": 1,
+      "movie": 0,
+      "pay": 0,
+      "hd5": 0,
+      "no_reprint": 1,
+      "autoplay": 1,
+      "ugc_pay": 0,
+      "is_cooperation": 0,
+      "ugc_pay_preview": 0,
+      "no_background": 0,
+      "clean_mode": 0,
+      "is_stein_gate": 0,
+      "is_360": 0,
+      "no_share": 0,
+      "arc_pay": 0,
+      "free_watch": 0
+    },
+    "owner": {
+      "mid": 29599758,
+      "name": "初初初夏喔",
+      "face": "https://i0.hdslb.com/bfs/face/87aaf0bed7b9b003e179a4d2535c4b396782104e.jpg"
+    },
+    "stat": {
+      "aid": 116251510706639,
+      "view": 3551,
+      "danmaku": 3,
+      "reply": 28,
+      "favorite": 34,
+      "coin": 27,
+      "share": 7,
+      "now_rank": 0,
+      "his_rank": 0,
+      "like": 75,
+      "dislike": 0,
+      "evaluation": "",
+      "vt": 0
+    },
+    "argue_info": {
+      "argue_msg": "",
+      "argue_type": 0,
+      "argue_link": ""
+    },
+    "dynamic": "",
+    "cid": 36799187761,
+    "dimension": {
+      "width": 2104,
+      "height": 1440,
+      "rotate": 0
+    },
+    "premiere": null,
+    "teenage_mode": 1,
+    "is_chargeable_season": false,
+    "is_story": false,
+    "is_upower_exclusive": false,
+    "is_upower_play": false,
+    "is_upower_preview": false,
+    "enable_vt": 0,
+    "vt_display": "",
+    "is_upower_exclusive_with_qa": false,
+    "no_cache": false,
+    "pages": [
+      {
+        "cid": 36799187761,
+        "page": 1,
+        "from": "vupload",
+        "part": "【龙胤立志传】 模组框架 以及 UnityExplorer 安装教程",
+        "duration": 101,
+        "vid": "",
+        "weblink": "",
+        "dimension": {
+          "width": 2104,
+          "height": 1440,
+          "rotate": 0
+        },
+        "first_frame": "http://i0.hdslb.com/bfs/storyff/_00003rl4i577xfypi2lspvy43hdrfsb_firsti.jpg",
+        "ctime": 1773857552
+      }
+    ],
+    "subtitle": {
+      "allow_submit": false,
+      "list": [
+        {
+          "id": 1977254911443874560,
+          "lan": "ai-zh",
+          "lan_doc": "中文",
+          "is_lock": false,
+          "subtitle_url": "",
+          "type": 1,
+          "id_str": "1977254911443874560",
+          "ai_type": 0,
+          "ai_status": 2,
+          "subtitle_height": null,
+          "author": {
+            "mid": 0,
+            "name": "",
+            "sex": "",
+            "face": "",
+            "sign": "",
+            "rank": 0,
+            "birthday": 0,
+            "is_fake_account": 0,
+            "is_deleted": 0,
+            "in_reg_audit": 0,
+            "is_senior_member": 0,
+            "name_render": null,
+            "handle": ""
+          }
+        }
+      ]
+    },
+    "is_season_display": false,
+    "user_garb": {
+      "url_image_ani_cut": "https://i0.hdslb.com/bfs/garb/a041e754845c9cdbe39fa065acda435f7cf064cf.bin"
+    },
+    "honor_reply": {},
+    "like_icon": "",
+    "need_jump_bv": false,
+    "disable_show_up_info": false,
+    "is_story_play": 1,
+    "is_view_self": false
+  }
+}

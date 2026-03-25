@@ -3,11 +3,12 @@ using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
 using System;
+using System.Reflection;
 using UnityEngine;
 
 namespace RisingFame;
 
-[BepInPlugin("com.luoxu.longyin.risingfame", "RisingFame - MingYangTianXia", "1.7.0")]
+[BepInPlugin("com.luoxu.longyin.risingfame", "RisingFame - MingYangTianXia", "1.8.1")]
 public class Plugin : BasePlugin
 {
     internal static new ManualLogSource Log = null!;
@@ -120,8 +121,8 @@ public class Plugin : BasePlugin
             postfix: new HarmonyMethod(typeof(Plugin), nameof(PollInput)),
             name: "Camera.FireOnPostRender (input)");
 
-        Log.LogInfo("RisingFame v1.7.0 loaded. Mod ON. Press '=' to toggle.");
-        Log.LogInfo("Martial exp: rank1 x3.0, +0.5/rank. Living exp: rank1 x2.0, +0.5/rank. Favor: rank1 x1.5, +0.5/rank. Contribution enabled. BookWrite: speed x10, cost/time /10.");
+        Log.LogInfo("RisingFame v1.8.1 loaded. Mod ON. Press '=' to toggle. Press Alt+R to refresh current panel.");
+        Log.LogInfo("Martial exp: rank1 x3.0, +0.5/rank. Living exp: rank1 x2.0, +0.5/rank. Favor: rank1 x1.5, +0.5/rank. Contribution enabled. BookWrite: speed x10, cost/time /10. Quick refresh: breakthrough / special enhance / auction.");
     }
 
     void TryPatch(Harmony harmony, System.Reflection.MethodInfo? target,
@@ -142,33 +143,143 @@ public class Plugin : BasePlugin
 
             if (Time.unscaledTime < _nextToggleTime) return;
 
-            bool pressed = Input.GetKeyDown(KeyCode.Equals) || Input.GetKeyDown(KeyCode.KeypadEquals);
-            if (!pressed) return;
-
-            _nextToggleTime = Time.unscaledTime + 0.2f;
-            Enabled = !Enabled;
-
-            Log.LogInfo($"[RisingFame] {(Enabled ? "ON" : "OFF")}");
-
-            System.Threading.ThreadPool.QueueUserWorkItem(_ =>
+            bool togglePressed = Input.GetKeyDown(KeyCode.Equals) || Input.GetKeyDown(KeyCode.KeypadEquals);
+            if (togglePressed)
             {
-                try
-                {
-                    if (Enabled)
-                    {
-                        Beep(1200, 80);
-                        Beep(1600, 80);
-                    }
-                    else
-                    {
-                        Beep(800, 80);
-                        Beep(400, 80);
-                    }
-                }
-                catch { }
-            });
+                _nextToggleTime = Time.unscaledTime + 0.2f;
+                Enabled = !Enabled;
+
+                Log.LogInfo($"[RisingFame] {(Enabled ? "ON" : "OFF")}");
+
+                QueueBeep(enabled: Enabled);
+                return;
+            }
+
+            if (!Enabled) return;
+
+            bool altHeld = Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
+            if (!altHeld) return;
+
+            bool refreshPressed = Input.GetKeyDown(KeyCode.R);
+            if (!refreshPressed) return;
+
+            _nextToggleTime = Time.unscaledTime + 0.15f;
+
+            string result = TryQuickRefresh();
+            Log.LogInfo($"[RisingFame] {result}");
+            QueueRefreshBeep(result.StartsWith("Refresh: ", StringComparison.Ordinal));
         }
         catch { }
+    }
+
+    static void QueueBeep(bool enabled)
+    {
+        System.Threading.ThreadPool.QueueUserWorkItem(_ =>
+        {
+            try
+            {
+                if (enabled)
+                {
+                    Beep(1200, 80);
+                    Beep(1600, 80);
+                }
+                else
+                {
+                    Beep(800, 80);
+                    Beep(400, 80);
+                }
+            }
+            catch { }
+        });
+    }
+
+    static void QueueRefreshBeep(bool success)
+    {
+        System.Threading.ThreadPool.QueueUserWorkItem(_ =>
+        {
+            try
+            {
+                if (success)
+                {
+                    Beep(1500, 70);
+                }
+                else
+                {
+                    Beep(500, 90);
+                }
+            }
+            catch { }
+        });
+    }
+
+    static string TryQuickRefresh()
+    {
+        try
+        {
+            if (TryRefreshSpecialEnhance())
+                return "Refresh: special enhance choices";
+
+            if (TryRefreshBreakThrough())
+                return "Refresh: breakthrough choices";
+
+            if (TryRestartAuction())
+                return "Refresh: auction";
+        }
+        catch (Exception ex)
+        {
+            return $"Refresh failed: {ex.Message}";
+        }
+
+        return "Refresh skipped: no supported panel";
+    }
+
+    static bool TryRefreshSpecialEnhance()
+    {
+        SpeEnhanceEquipController? instance = SpeEnhanceEquipController.Instance;
+        if (instance == null) return false;
+        if (!IsPanelActive(instance.speEnhanceEquipUI)) return false;
+        if (!instance.CanEnhance()) return false;
+
+        instance.ClearAllChoice();
+        instance.GenerateChoice();
+        instance.RefreshEnhanceButtonState();
+        return true;
+    }
+
+    static bool TryRefreshBreakThrough()
+    {
+        BreakThroughController? instance = BreakThroughController.Instance;
+        if (instance == null) return false;
+        if (!IsPanelActive(instance.breakThroughPanel)) return false;
+        if (instance.targetSkill == null) return false;
+
+        instance.StartShowBreakChoice();
+        instance.RefreshExtraRateInfo();
+        return true;
+    }
+
+    static bool TryRestartAuction()
+    {
+        AuctionController? instance = AuctionController.Instance;
+        if (instance == null) return false;
+        if (!IsPanelActive(instance.auctionPanel)) return false;
+        PlotController? plot = PlotController.Instance;
+        if (plot == null || plot.tempPlotShop == null) return false;
+
+        instance.RestartAuction(
+            instance.heroList,
+            plot.tempPlotShop,
+            instance.playerSellItem,
+            instance.endMatchCallPlot,
+            instance.auctionDifficulty,
+            instance.havePlayer,
+            instance.auctionKeeper);
+        return true;
+    }
+
+    static bool IsPanelActive(GameObject? panel)
+    {
+        return panel != null && panel.activeInHierarchy;
     }
 }
 

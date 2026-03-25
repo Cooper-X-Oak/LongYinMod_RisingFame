@@ -1,0 +1,124 @@
+{
+  "code": 0,
+  "message": "OK",
+  "ttl": 1,
+  "data": {
+    "bvid": "BV1XAQBBxEcH",
+    "aid": 116281994972776,
+    "videos": 1,
+    "tid": 17,
+    "tid_v2": 2079,
+    "tname": "",
+    "tname_v2": "",
+    "copyright": 1,
+    "pic": "http://i0.hdslb.com/bfs/archive/5623ae91ce407160a510955f92e59952bef8771a.jpg",
+    "title": "龙胤立志传 ai对话mod - 可以透過對話學武功啦(無冷卻 不降好感)",
+    "pubdate": 1774322552,
+    "ctime": 1774322552,
+    "desc": "下載連結:https://drive.google.com/file/d/1tBeK1HIdVA4dvE4G97K3SVp28FxL0FES/view?usp=drive_link\n解壓後拷貝至遊戲根目錄進入\"open_backend_mode_ui.bat\"設定好API後按SAVE即可 進入遊戲後進入對話/交互介面後按下F9即可進入AI對話界面",
+    "desc_v2": [
+      {
+        "raw_text": "下載連結:https://drive.google.com/file/d/1tBeK1HIdVA4dvE4G97K3SVp28FxL0FES/view?usp=drive_link\n解壓後拷貝至遊戲根目錄進入\"open_backend_mode_ui.bat\"設定好API後按SAVE即可 進入遊戲後進入對話/交互介面後按下F9即可進入AI對話界面",
+        "type": 1,
+        "biz_id": 0
+      }
+    ],
+    "state": 0,
+    "duration": 101,
+    "rights": {
+      "bp": 0,
+      "elec": 0,
+      "download": 1,
+      "movie": 0,
+      "pay": 0,
+      "hd5": 1,
+      "no_reprint": 1,
+      "autoplay": 1,
+      "ugc_pay": 0,
+      "is_cooperation": 0,
+      "ugc_pay_preview": 0,
+      "no_background": 0,
+      "clean_mode": 0,
+      "is_stein_gate": 0,
+      "is_360": 0,
+      "no_share": 0,
+      "arc_pay": 0,
+      "free_watch": 0
+    },
+    "owner": {
+      "mid": 3706953354184927,
+      "name": "Ray0626rc",
+      "face": "https://i0.hdslb.com/bfs/face/member/noface.jpg"
+    },
+    "stat": {
+      "aid": 116281994972776,
+      "view": 1553,
+      "danmaku": 1,
+      "reply": 26,
+      "favorite": 33,
+      "coin": 34,
+      "share": 2,
+      "now_rank": 0,
+      "his_rank": 0,
+      "like": 65,
+      "dislike": 0,
+      "evaluation": "",
+      "vt": 0
+    },
+    "argue_info": {
+      "argue_msg": "",
+      "argue_type": 0,
+      "argue_link": ""
+    },
+    "dynamic": "",
+    "cid": 36928358245,
+    "dimension": {
+      "width": 2560,
+      "height": 1440,
+      "rotate": 0
+    },
+    "premiere": null,
+    "teenage_mode": 1,
+    "is_chargeable_season": false,
+    "is_story": false,
+    "is_upower_exclusive": false,
+    "is_upower_play": false,
+    "is_upower_preview": false,
+    "enable_vt": 0,
+    "vt_display": "",
+    "is_upower_exclusive_with_qa": false,
+    "no_cache": false,
+    "pages": [
+      {
+        "cid": 36928358245,
+        "page": 1,
+        "from": "vupload",
+        "part": "龙胤立志传 ai对话mod - 可以透過對話學武功啦(無冷卻 不降好感)",
+        "duration": 101,
+        "vid": "",
+        "weblink": "",
+        "dimension": {
+          "width": 2560,
+          "height": 1440,
+          "rotate": 0
+        },
+        "first_frame": "http://i0.hdslb.com/bfs/storyff/_00002laxb7jebkbfn208z05h8p07ppb_firsti.jpg",
+        "ctime": 1774322552
+      }
+    ],
+    "subtitle": {
+      "allow_submit": false,
+      "list": []
+    },
+    "is_season_display": false,
+    "user_garb": {
+      "url_image_ani_cut": "https://i0.hdslb.com/bfs/garb/a041e754845c9cdbe39fa065acda435f7cf064cf.bin"
+    },
+    "honor_reply": {},
+    "like_icon": "",
+    "need_jump_bv": false,
+    "disable_show_up_info": false,
+    "is_story_play": 1,
+    "is_view_self": false
+  }
+}

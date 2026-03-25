@@ -1,0 +1,152 @@
+{
+  "code": 0,
+  "message": "OK",
+  "ttl": 1,
+  "data": {
+    "bvid": "BV1cuQzB3E98",
+    "aid": 116283353866186,
+    "videos": 1,
+    "tid": 17,
+    "tid_v2": 2079,
+    "tname": "",
+    "tname_v2": "",
+    "copyright": 1,
+    "pic": "http://i0.hdslb.com/bfs/archive/f5f901546f1c414553ec3f88ccbd1580f4469eb2.jpg",
+    "title": "【龙胤】省时MOD|自动鉴宝|刷新突破属性|刷新拍卖行|经验倍率设置",
+    "pubdate": 1774343381,
+    "ctime": 1774343381,
+    "desc": "度盘：\n链接: https://pan.baidu.com/s/1l5E8HqN5H3M9GU_mUIOOwg?pwd=9dj9 提取码: 9dj9\n夸克：\n链接：https://pan.quark.cn/s/1ef1efd57503?pwd=Q4Ft 提取码：Q4Ft\n迅雷：\n链接：https://pan.xunlei.com/s/VOoU5drHhAHTWfzXRjHcuel0A1# 提取码：z7sx\n\n快捷键 ALT+E呼出面板 ALT+R刷新拍卖行 ALT+T刷新突破属性 ALT+F鉴宝",
+    "desc_v2": [
+      {
+        "raw_text": "度盘：\n链接: https://pan.baidu.com/s/1l5E8HqN5H3M9GU_mUIOOwg?pwd=9dj9 提取码: 9dj9\n夸克：\n链接：https://pan.quark.cn/s/1ef1efd57503?pwd=Q4Ft 提取码：Q4Ft\n迅雷：\n链接：https://pan.xunlei.com/s/VOoU5drHhAHTWfzXRjHcuel0A1# 提取码：z7sx\n\n快捷键 ALT+E呼出面板 ALT+R刷新拍卖行 ALT+T刷新突破属性 ALT+F鉴宝",
+        "type": 1,
+        "biz_id": 0
+      }
+    ],
+    "state": 0,
+    "duration": 40,
+    "rights": {
+      "bp": 0,
+      "elec": 0,
+      "download": 1,
+      "movie": 0,
+      "pay": 0,
+      "hd5": 1,
+      "no_reprint": 1,
+      "autoplay": 1,
+      "ugc_pay": 0,
+      "is_cooperation": 0,
+      "ugc_pay_preview": 0,
+      "no_background": 0,
+      "clean_mode": 0,
+      "is_stein_gate": 0,
+      "is_360": 0,
+      "no_share": 0,
+      "arc_pay": 0,
+      "free_watch": 0
+    },
+    "owner": {
+      "mid": 271059,
+      "name": "木子月",
+      "face": "https://i0.hdslb.com/bfs/face/488912d860a08c0db39adc83c6ef09e4c9ce917c.jpg"
+    },
+    "stat": {
+      "aid": 116283353866186,
+      "view": 3588,
+      "danmaku": 2,
+      "reply": 107,
+      "favorite": 218,
+      "coin": 121,
+      "share": 9,
+      "now_rank": 0,
+      "his_rank": 0,
+      "like": 141,
+      "dislike": 0,
+      "evaluation": "",
+      "vt": 0
+    },
+    "argue_info": {
+      "argue_msg": "",
+      "argue_type": 0,
+      "argue_link": ""
+    },
+    "dynamic": "",
+    "cid": 36939107196,
+    "dimension": {
+      "width": 1920,
+      "height": 1080,
+      "rotate": 0
+    },
+    "premiere": null,
+    "teenage_mode": 1,
+    "is_chargeable_season": false,
+    "is_story": false,
+    "is_upower_exclusive": false,
+    "is_upower_play": false,
+    "is_upower_preview": false,
+    "enable_vt": 0,
+    "vt_display": "",
+    "is_upower_exclusive_with_qa": false,
+    "no_cache": false,
+    "pages": [
+      {
+        "cid": 36939107196,
+        "page": 1,
+        "from": "vupload",
+        "part": "【龙胤】省时MOD|自动鉴宝|刷新突破属性|刷新拍卖行|经验倍率设置",
+        "duration": 40,
+        "vid": "",
+        "weblink": "",
+        "dimension": {
+          "width": 1920,
+          "height": 1080,
+          "rotate": 0
+        },
+        "first_frame": "http://i1.hdslb.com/bfs/storyff/_0000366xarm1n2wyn2ajsycen8ofenb_firsti.jpg",
+        "ctime": 1774343381
+      }
+    ],
+    "subtitle": {
+      "allow_submit": false,
+      "list": [
+        {
+          "id": 1981330348289736960,
+          "lan": "ai-zh",
+          "lan_doc": "中文",
+          "is_lock": false,
+          "subtitle_url": "",
+          "type": 1,
+          "id_str": "1981330348289736960",
+          "ai_type": 0,
+          "ai_status": 2,
+          "subtitle_height": null,
+          "author": {
+            "mid": 0,
+            "name": "",
+            "sex": "",
+            "face": "",
+            "sign": "",
+            "rank": 0,
+            "birthday": 0,
+            "is_fake_account": 0,
+            "is_deleted": 0,
+            "in_reg_audit": 0,
+            "is_senior_member": 0,
+            "name_render": null,
+            "handle": ""
+          }
+        }
+      ]
+    },
+    "is_season_display": false,
+    "user_garb": {
+      "url_image_ani_cut": "https://i0.hdslb.com/bfs/garb/a041e754845c9cdbe39fa065acda435f7cf064cf.bin"
+    },
+    "honor_reply": {},
+    "like_icon": "",
+    "need_jump_bv": false,
+    "disable_show_up_info": false,
+    "is_story_play": 1,
+    "is_view_self": false
+  }
+}
