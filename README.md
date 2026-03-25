@@ -78,9 +78,23 @@
 
 演示：
 
-![一键刷新武学词条演示](./assets/refresh-demo.gif)
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="./assets/refresh-demo.gif" alt="一键刷新武学词条演示" width="92%">
+      <br>
+      <sub>武学 / 突破词条刷新</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="./assets/测试刷新拍卖展品.gif" alt="拍卖展品刷新演示" width="92%">
+      <br>
+      <sub>拍卖展品刷新</sub>
+    </td>
+  </tr>
+</table>
 
 - 技术说明：[doc/refresh-implementation-notes.md](./doc/refresh-implementation-notes.md)
+- 拍卖专项复盘：[doc/auction-refresh-retrospective.md](./doc/auction-refresh-retrospective.md)
 
 ---
 
@@ -203,15 +217,21 @@
 
 <pre>
 [07.3] 实现侧
-└─ [07.3.1] 一键刷新功能逆向与实现说明
-   ├─ 初版失败现象
-   ├─ 原生控制器入口
-   ├─ 最终实现路径
-   └─ 未来启发
+├─ [07.3.1] 一键刷新功能逆向与实现说明
+│  ├─ 初版失败现象
+│  ├─ 原生控制器入口
+│  ├─ 最终实现路径
+│  └─ 未来启发
+└─ [07.3.2] 拍卖展品刷新复盘与工程教训
+   ├─ 问题时间线
+   ├─ 当前稳定方案
+   ├─ 工程教训
+   └─ 可复用流程
 </pre>
 
-- 主文档：[一键刷新功能逆向与实现说明](./doc/refresh-implementation-notes.md)
+- 主文档：[一键刷新功能逆向与实现说明](./doc/refresh-implementation-notes.md)、[拍卖展品刷新复盘与工程教训](./doc/auction-refresh-retrospective.md)
 - 直达章节：[初版失败现象](./doc/refresh-implementation-notes.md#refresh-first-failure) / [原生控制器入口](./doc/refresh-implementation-notes.md#refresh-native-controllers) / [最终实现路径](./doc/refresh-implementation-notes.md#refresh-final-path) / [未来启发](./doc/refresh-implementation-notes.md#refresh-future)
+- 直达章节：[问题时间线](./doc/auction-refresh-retrospective.md#auction-retro-timeline) / [当前稳定方案](./doc/auction-refresh-retrospective.md#auction-retro-current) / [工程教训](./doc/auction-refresh-retrospective.md#auction-retro-lessons) / [可复用流程](./doc/auction-refresh-retrospective.md#auction-retro-playbook)
 
 </details>
 
