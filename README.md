@@ -18,7 +18,7 @@
 
 ## 演示
 
-![一键刷新武学词条演示](./assets/一键刷新武学词条.gif)
+![一键刷新武学词条演示](./assets/refresh-demo.gif)
 
 - 动图预览：上方 GIF
 - 技术实现说明：[doc/refresh-implementation-notes.md](./doc/refresh-implementation-notes.md)
