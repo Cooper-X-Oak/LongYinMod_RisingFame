@@ -63,7 +63,6 @@
 
   <rect x="942" y="376" width="220" height="96" rx="18" fill="#211711" fill-opacity="0.66" stroke="#F7D08A" stroke-opacity="0.4"/>
   <text x="972" y="416" fill="#F3D5A3" font-family="'Segoe UI','Microsoft YaHei',sans-serif" font-size="22">当前版本</text>
-  <text x="972" y="452" fill="#FFF3DE" font-family="'Noto Serif SC','Source Han Serif SC','STSong','SimSun',serif" font-size="34" font-weight="700">v1.7.0</text>
 
   <path d="M898 542L1148 542" stroke="#F3CA82" stroke-opacity="0.5" stroke-width="2"/>
   <text x="899" y="579" fill="#F5E7D1" font-family="'Segoe UI','Microsoft YaHei',sans-serif" font-size="22">Windows x64  |  Steam  |  Unity IL2CPP  |  BepInEx 6.0.0-be.755</text>
