@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## v1.8.16
+
+突破刷新回归修复与实现收口：
+
+- 修复“突破界面按 `Alt+R` 刷新后，再打开阅读武学界面可能一片空白”的问题
+- 突破刷新前只清理突破槽位下遗留的 `BreakThroughChoiceIcon(Clone)`，避免旧按钮叠层与点击命中旧结果
+- 保留原生 `StartShowBreakChoice()` / `RefreshExtraRateInfo()` 刷新链路，并仅临时加速突破展示粒子
+- 不再触碰共享 `ChooseController` / `ChooseItemList` 容器，避免把阅读武学等共用 UI 一起带坏
+- 新增日志 `BreakThrough refresh cleared icons removed=...`，便于确认旧层清理确实发生
+
 ## v1.8.15
 
 `1.8` 稳定发布收口：

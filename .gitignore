@@ -11,3 +11,4 @@ Inspector/
 /build.ps1
 /deploy.ps1
 /install-to-game.ps1
+plugin-swap.log

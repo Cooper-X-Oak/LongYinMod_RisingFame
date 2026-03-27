@@ -9,9 +9,12 @@ using UnityEngine;
 
 namespace RisingFame;
 
-[BepInPlugin("com.luoxu.longyin.risingfame", "RisingFame - MingYangTianXia", "1.8.15")]
+[BepInPlugin("com.luoxu.longyin.risingfame", "RisingFame - MingYangTianXia", "1.8.16")]
 public class Plugin : BasePlugin
 {
+    const string PluginVersion = "1.8.16";
+    const int BreakThroughFastRefreshFrames = 20;
+    const float BreakThroughFastParticleDuration = 0.02f;
     internal static new ManualLogSource Log = null!;
 
     // ---- Mod ON/OFF ----
@@ -28,9 +31,16 @@ public class Plugin : BasePlugin
         ChooseClose,
         EnsureOpen
     }
+    internal enum AuctionProbeSource
+    {
+        None,
+        Natural,
+        Plugin
+    }
 
     static int _pendingAuctionSequenceFrame = -1;
     static AuctionRefreshStep _pendingAuctionStep;
+    static int _breakThroughFastRefreshUntilFrame = -1;
 
     // Cached auction generation context captured from the game's native path.
     static ItemListData? _lastAuctionTargetList;
@@ -41,6 +51,19 @@ public class Plugin : BasePlugin
     static bool _pendingAuctionReroll;
     static bool _pendingAuctionAwaitChooseClose;
     static int _pendingAuctionEnsureOpenRetries;
+    static int _auctionProbeNaturalSeq;
+    static int _auctionProbePluginSeq;
+    static bool _auctionProbeNaturalArmed;
+    static bool _auctionProbePluginArmed;
+    static string _auctionProbeNaturalId = string.Empty;
+    static string _auctionProbePluginId = string.Empty;
+    static AuctionProbeSource _auctionNextShowSource;
+    static string _auctionProbeActiveId = string.Empty;
+    static AuctionProbeSource _auctionProbeActiveSource;
+    static int _auctionProbeActiveFrame = -1;
+    static bool _auctionProbeGenerateSeen;
+    static bool _auctionProbeStackArmed;
+    static bool _auctionProbeStackEmitted;
 
     // Exp multiplier: rank1=x3.0, each rank +0.5 (rank6=x5.5)
     internal static float GetExpMultiplier(HeroData hero)
@@ -162,7 +185,46 @@ public class Plugin : BasePlugin
             postfix: new HarmonyMethod(typeof(ChoosePanelTracePatches), nameof(ChoosePanelTracePatches.UnshowChoosePanel_Post)),
             name: "ChooseController.UnshowChoosePanel");
 
-        Log.LogInfo("RisingFame v1.8.14 loaded. Mod ON. Press '=' to toggle. Press Alt+R to refresh current panel. Press Alt+I to dump auction UI snapshot.");
+        TryPatch(harmony, AccessTools.Method(typeof(BreakThroughController), "ShowItemParticle",
+                new[] { typeof(GameObject), typeof(GameObject), typeof(float) }),
+            prefix: new HarmonyMethod(typeof(BreakThroughTracePatches), nameof(BreakThroughTracePatches.ShowItemParticle3_Pre)),
+            name: "BreakThroughController.ShowItemParticle/3");
+
+        TryPatch(harmony, AccessTools.Method(typeof(BreakThroughController), "ShowItemParticle",
+                new[] { typeof(GameObject), typeof(GameObject), typeof(float), typeof(float), typeof(int) }),
+            prefix: new HarmonyMethod(typeof(BreakThroughTracePatches), nameof(BreakThroughTracePatches.ShowItemParticle5_Pre)),
+            name: "BreakThroughController.ShowItemParticle/5");
+
+        TryPatchAllOverloads(harmony, typeof(AuctionController), "StartAuctionRound",
+            prefix: new HarmonyMethod(typeof(AuctionEntryTracePatches), nameof(AuctionEntryTracePatches.AuctionEntry_Pre)),
+            postfix: new HarmonyMethod(typeof(AuctionEntryTracePatches), nameof(AuctionEntryTracePatches.AuctionEntry_Post)));
+        TryPatchAllOverloads(harmony, typeof(AuctionController), "StartAreaAuction",
+            prefix: new HarmonyMethod(typeof(AuctionEntryTracePatches), nameof(AuctionEntryTracePatches.AuctionEntry_Pre)),
+            postfix: new HarmonyMethod(typeof(AuctionEntryTracePatches), nameof(AuctionEntryTracePatches.AuctionEntry_Post)));
+        TryPatchAllOverloads(harmony, typeof(AuctionController), "RestartAuction",
+            prefix: new HarmonyMethod(typeof(AuctionEntryTracePatches), nameof(AuctionEntryTracePatches.AuctionEntry_Pre)),
+            postfix: new HarmonyMethod(typeof(AuctionEntryTracePatches), nameof(AuctionEntryTracePatches.AuctionEntry_Post)));
+
+        TryPatchAllOverloads(harmony, typeof(ItemListController), "SetItemList",
+            prefix: new HarmonyMethod(typeof(ItemListTracePatches), nameof(ItemListTracePatches.ItemList_Pre)),
+            postfix: new HarmonyMethod(typeof(ItemListTracePatches), nameof(ItemListTracePatches.ItemList_Post)));
+        TryPatchAllOverloads(harmony, typeof(ItemListController), "RefreshItemList",
+            prefix: new HarmonyMethod(typeof(ItemListTracePatches), nameof(ItemListTracePatches.ItemList_Pre)),
+            postfix: new HarmonyMethod(typeof(ItemListTracePatches), nameof(ItemListTracePatches.ItemList_Post)));
+        TryPatchAllOverloads(harmony, typeof(ItemListController), "SetItemListData",
+            prefix: new HarmonyMethod(typeof(ItemListTracePatches), nameof(ItemListTracePatches.ItemList_Pre)),
+            postfix: new HarmonyMethod(typeof(ItemListTracePatches), nameof(ItemListTracePatches.ItemList_Post)));
+
+        LogMethodOverloads(typeof(PlotController), "ShowAuctionItem");
+        LogMethodOverloads(typeof(PlotController), "GenerateAuctionItem");
+        LogMethodOverloads(typeof(AuctionController), "StartAuctionRound");
+        LogMethodOverloads(typeof(AuctionController), "StartAreaAuction");
+        LogMethodOverloads(typeof(AuctionController), "RestartAuction");
+        LogMethodOverloads(typeof(ItemListController), "SetItemList");
+        LogMethodOverloads(typeof(ItemListController), "RefreshItemList");
+        LogMethodOverloads(typeof(ItemListController), "SetItemListData");
+
+        Log.LogInfo($"RisingFame v{PluginVersion} loaded. Mod ON. Press '=' to toggle. Press Alt+R to refresh current panel. Press Alt+I to dump auction UI snapshot.");
         Log.LogInfo("Martial exp: rank1 x3.0, +0.5/rank. Living exp: rank1 x2.0, +0.5/rank. Favor: rank1 x1.5, +0.5/rank. Contribution enabled. BookWrite: speed x10, cost/time /10. Quick refresh: breakthrough / special enhance / enhance / craft / auction reroll arm.");
     }
 
@@ -172,6 +234,82 @@ public class Plugin : BasePlugin
         if (target == null) { Log.LogWarning($"[SKIP] {name} - not found"); return; }
         try { harmony.Patch(target, prefix: prefix, postfix: postfix); }
         catch (Exception ex) { Log.LogError($"[FAIL] {name}: {ex.Message}"); }
+    }
+
+    void TryPatchAllOverloads(Harmony harmony, Type type, string methodName,
+        HarmonyMethod? prefix = null, HarmonyMethod? postfix = null)
+    {
+        try
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            MethodInfo[] methods = type.GetMethods(flags);
+            int patched = 0;
+            for (int i = 0; i < methods.Length; i++)
+            {
+                MethodInfo method = methods[i];
+                if (!string.Equals(method.Name, methodName, StringComparison.Ordinal))
+                    continue;
+
+                patched++;
+                try
+                {
+                    harmony.Patch(method, prefix: prefix, postfix: postfix);
+                }
+                catch (Exception ex)
+                {
+                    Log.LogError($"[FAIL] {type.Name}.{methodName} overload {DescribeMethodSignature(method)}: {ex.Message}");
+                }
+            }
+
+            if (patched == 0)
+                Log.LogWarning($"[SKIP] {type.Name}.{methodName} - not found");
+        }
+        catch (Exception ex)
+        {
+            Log.LogWarning($"[FAIL] {type.Name}.{methodName} patch scan failed: {ex.Message}");
+        }
+    }
+
+    static void LogMethodOverloads(Type type, string methodName)
+    {
+        try
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            MethodInfo[] methods = type.GetMethods(flags);
+            int found = 0;
+            for (int i = 0; i < methods.Length; i++)
+            {
+                MethodInfo method = methods[i];
+                if (!string.Equals(method.Name, methodName, StringComparison.Ordinal))
+                    continue;
+
+                found++;
+                Log.LogInfo($"[RisingFame] Method overload {type.Name}.{methodName}#{found}: {DescribeMethodSignature(method)}");
+            }
+
+            if (found == 0)
+                Log.LogWarning($"[RisingFame] Method overload {type.Name}.{methodName}: none");
+        }
+        catch (Exception ex)
+        {
+            Log.LogWarning($"[RisingFame] Method overload {type.Name}.{methodName} inspect failed: {ex.Message}");
+        }
+    }
+
+    static string DescribeMethodSignature(MethodInfo method)
+    {
+        ParameterInfo[] parameters = method.GetParameters();
+        if (parameters.Length == 0)
+            return $"{method.ReturnType.Name} {method.Name}()";
+
+        string[] parts = new string[parameters.Length];
+        for (int i = 0; i < parameters.Length; i++)
+        {
+            ParameterInfo parameter = parameters[i];
+            parts[i] = $"{parameter.ParameterType.Name} {parameter.Name}";
+        }
+
+        return $"{method.ReturnType.Name} {method.Name}({string.Join(", ", parts)})";
     }
 
     public static void PollInput()
@@ -208,6 +346,8 @@ public class Plugin : BasePlugin
 
             if (inspectPressed)
             {
+                bool shiftHeld = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+                ArmAuctionNaturalProbe(withStack: shiftHeld);
                 DumpAuctionUiSnapshot();
                 QueueRefreshBeep(success: true);
                 return;
@@ -272,6 +412,155 @@ public class Plugin : BasePlugin
         });
     }
 
+    static string NextProbeId(string prefix, ref int seq)
+    {
+        seq++;
+        return $"{prefix}_{seq:000}";
+    }
+
+    static void ArmAuctionNaturalProbe(bool withStack)
+    {
+        _auctionProbeNaturalId = NextProbeId("natural", ref _auctionProbeNaturalSeq);
+        _auctionProbeNaturalArmed = true;
+        if (withStack)
+        {
+            _auctionProbeStackArmed = true;
+            _auctionProbeStackEmitted = false;
+        }
+
+        Log.LogInfo($"[RisingFame] Auction probe armed. auction_probe_id={_auctionProbeNaturalId} source=natural{(withStack ? " stack=on" : string.Empty)}");
+    }
+
+    static void ArmAuctionPluginProbe()
+    {
+        _auctionProbePluginId = NextProbeId("plugin", ref _auctionProbePluginSeq);
+        _auctionProbePluginArmed = true;
+        Log.LogInfo($"[RisingFame] Auction probe armed. auction_probe_id={_auctionProbePluginId} source=plugin");
+    }
+
+    static void SetActiveAuctionProbe(string id, AuctionProbeSource source)
+    {
+        _auctionProbeActiveId = id;
+        _auctionProbeActiveSource = source;
+        _auctionProbeActiveFrame = Time.frameCount;
+        _auctionProbeGenerateSeen = false;
+    }
+
+    static void ClearActiveAuctionProbe()
+    {
+        _auctionProbeActiveId = string.Empty;
+        _auctionProbeActiveSource = AuctionProbeSource.None;
+        _auctionProbeActiveFrame = -1;
+        _auctionProbeGenerateSeen = false;
+    }
+
+    static bool IsActiveProbe(AuctionProbeSource source)
+    {
+        if (string.IsNullOrWhiteSpace(_auctionProbeActiveId)) return false;
+        if (_auctionProbeActiveSource != source) return false;
+        int delta = Time.frameCount - _auctionProbeActiveFrame;
+        return delta >= 0 && delta <= 300;
+    }
+
+    static bool ShouldLogProbeAny()
+    {
+        return _auctionProbeNaturalArmed
+            || _auctionProbePluginArmed
+            || !string.IsNullOrWhiteSpace(_auctionProbeActiveId);
+    }
+
+    static bool TryActivateProbe(AuctionProbeSource source, string reason)
+    {
+        if (!string.IsNullOrWhiteSpace(_auctionProbeActiveId))
+            return true;
+
+        if (source == AuctionProbeSource.Plugin && _auctionProbePluginArmed)
+        {
+            string id = _auctionProbePluginId;
+            _auctionProbePluginArmed = false;
+            SetActiveAuctionProbe(id, AuctionProbeSource.Plugin);
+            Log.LogInfo($"[RisingFame] auction_probe_id={id} source=plugin activatedBy={reason}");
+            return true;
+        }
+
+        if (source == AuctionProbeSource.Natural && _auctionProbeNaturalArmed)
+        {
+            string id = _auctionProbeNaturalId;
+            _auctionProbeNaturalArmed = false;
+            SetActiveAuctionProbe(id, AuctionProbeSource.Natural);
+            Log.LogInfo($"[RisingFame] auction_probe_id={id} source=natural activatedBy={reason}");
+            return true;
+        }
+
+        return false;
+    }
+
+    static bool TryActivateProbeFromAny(string reason)
+    {
+        if (!string.IsNullOrWhiteSpace(_auctionProbeActiveId))
+            return true;
+
+        if (_auctionProbePluginArmed)
+            return TryActivateProbe(AuctionProbeSource.Plugin, reason);
+
+        if (_auctionProbeNaturalArmed)
+            return TryActivateProbe(AuctionProbeSource.Natural, reason);
+
+        return false;
+    }
+
+    internal static AuctionProbeSource ConsumeNextShowSource()
+    {
+        AuctionProbeSource source = _auctionNextShowSource;
+        _auctionNextShowSource = AuctionProbeSource.None;
+        return source;
+    }
+
+    static void MarkNextShowFromPlugin()
+    {
+        _auctionNextShowSource = AuctionProbeSource.Plugin;
+    }
+
+    static int CountActiveItemIcons()
+    {
+        try
+        {
+            ItemIconController[] icons = UnityEngine.Object.FindObjectsOfType<ItemIconController>(true);
+            int activeCount = 0;
+            for (int i = 0; i < icons.Length; i++)
+            {
+                ItemIconController? icon = icons[i];
+                if (icon == null || icon.gameObject == null || !icon.gameObject.activeInHierarchy)
+                    continue;
+
+                activeCount++;
+            }
+
+            return activeCount;
+        }
+        catch
+        {
+            return -1;
+        }
+    }
+
+    static void MaybeLogProbeStack(string probeId)
+    {
+        if (!_auctionProbeStackArmed || _auctionProbeStackEmitted) return;
+        _auctionProbeStackEmitted = true;
+        _auctionProbeStackArmed = false;
+        string stack = TrimStack(Environment.StackTrace, 24);
+        Log.LogInfo($"[RisingFame] auction_probe_id={probeId} stack={stack}");
+    }
+
+    static string TrimStack(string stack, int maxLines)
+    {
+        if (string.IsNullOrWhiteSpace(stack)) return "null";
+        string[] lines = stack.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        int take = Math.Min(lines.Length, Math.Max(1, maxLines));
+        return string.Join(" | ", lines, 0, take);
+    }
+
     static string TryQuickRefresh()
     {
         try
@@ -327,9 +616,182 @@ public class Plugin : BasePlugin
         if (!IsPanelActive(instance.breakThroughPanel)) return false;
         if (instance.targetSkill == null) return false;
 
+        int removed = ClearBreakThroughChoiceIcons(instance);
+        ArmBreakThroughFastRefresh();
         instance.StartShowBreakChoice();
         instance.RefreshExtraRateInfo();
+        Log.LogInfo($"[RisingFame] BreakThrough refresh cleared icons removed={removed}");
         return true;
+    }
+
+    static void ArmBreakThroughFastRefresh()
+    {
+        _breakThroughFastRefreshUntilFrame = Math.Max(_breakThroughFastRefreshUntilFrame, Time.frameCount + BreakThroughFastRefreshFrames);
+    }
+
+    internal static void AccelerateBreakThroughShowItemParticle(ref float duration)
+    {
+        if (!IsBreakThroughFastRefreshActive()) return;
+        if (duration > BreakThroughFastParticleDuration)
+            duration = BreakThroughFastParticleDuration;
+    }
+
+    internal static void AccelerateBreakThroughShowItemParticle(ref float durationA, ref float durationB)
+    {
+        if (!IsBreakThroughFastRefreshActive()) return;
+        if (durationA > BreakThroughFastParticleDuration)
+            durationA = BreakThroughFastParticleDuration;
+        if (durationB > BreakThroughFastParticleDuration)
+            durationB = BreakThroughFastParticleDuration;
+    }
+
+    static bool IsBreakThroughFastRefreshActive()
+    {
+        return _breakThroughFastRefreshUntilFrame >= 0
+            && Time.frameCount <= _breakThroughFastRefreshUntilFrame;
+    }
+
+    static int ClearBreakThroughChoiceIcons(BreakThroughController instance)
+    {
+        System.Collections.Generic.List<Transform> slots = GetBreakThroughChoiceSlots(instance);
+        int removed = 0;
+        for (int i = 0; i < slots.Count; i++)
+            removed += ClearBreakThroughChoiceIconsRecursive(slots[i]);
+        return removed;
+    }
+
+    static System.Collections.Generic.List<Transform> GetBreakThroughChoiceSlots(BreakThroughController instance)
+    {
+        var results = new System.Collections.Generic.List<Transform>();
+        TryCollectBreakThroughSlotTransforms(TryGetMember(instance, "breakThroughPos"), results);
+        if (results.Count > 0)
+            return results;
+
+        Transform? iconRoot = FindChildTransformByName(instance.breakThroughPanel != null ? instance.breakThroughPanel.transform : null, "BreakThroughIconPos");
+        if (iconRoot != null)
+        {
+            for (int i = 0; i < iconRoot.childCount; i++)
+                results.Add(iconRoot.GetChild(i));
+        }
+
+        return results;
+    }
+
+    static void TryCollectBreakThroughSlotTransforms(object? value, System.Collections.Generic.List<Transform> results)
+    {
+        if (value == null) return;
+
+        Transform? transform = TryResolveTransform(value);
+        if (transform != null)
+        {
+            results.Add(transform);
+            return;
+        }
+
+        if (value is string) return;
+
+        if (value is System.Collections.IEnumerable enumerable)
+        {
+            foreach (object? item in enumerable)
+                TryCollectBreakThroughSlotTransforms(item, results);
+            return;
+        }
+
+        if (!TryGetCollectionCount(value, out int count)) return;
+
+        for (int i = 0; i < count; i++)
+            TryCollectBreakThroughSlotTransforms(TryGetCollectionItem(value, i), results);
+    }
+
+    static bool TryGetCollectionCount(object value, out int count)
+    {
+        count = 0;
+        object? raw = TryGetMember(value, "Count") ?? TryGetMember(value, "Length");
+        if (raw == null) return false;
+
+        try
+        {
+            count = Convert.ToInt32(raw);
+            return count >= 0;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    static object? TryGetCollectionItem(object value, int index)
+    {
+        try
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            PropertyInfo? property = value.GetType().GetProperty("Item", flags);
+            if (property != null)
+                return property.GetValue(value, new object?[] { index });
+        }
+        catch { }
+
+        try
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            MethodInfo? method = value.GetType().GetMethod("get_Item", flags, null, new[] { typeof(int) }, null);
+            if (method != null)
+                return method.Invoke(value, new object?[] { index });
+        }
+        catch { }
+
+        return null;
+    }
+
+    static Transform? TryResolveTransform(object? value)
+    {
+        if (value is Transform transform) return transform;
+        if (value is GameObject gameObject) return gameObject.transform;
+        if (value is Component component) return component.transform;
+        return null;
+    }
+
+    static Transform? FindChildTransformByName(Transform? root, string targetName)
+    {
+        if (root == null) return null;
+
+        var stack = new System.Collections.Generic.Stack<Transform>();
+        stack.Push(root);
+        while (stack.Count > 0)
+        {
+            Transform current = stack.Pop();
+            if (string.Equals(current.name, targetName, StringComparison.OrdinalIgnoreCase))
+                return current;
+
+            for (int i = current.childCount - 1; i >= 0; i--)
+                stack.Push(current.GetChild(i));
+        }
+
+        return null;
+    }
+
+    static int ClearBreakThroughChoiceIconsRecursive(Transform root)
+    {
+        int removed = 0;
+        for (int i = root.childCount - 1; i >= 0; i--)
+        {
+            Transform child = root.GetChild(i);
+            if (IsBreakThroughChoiceClone(child.gameObject))
+            {
+                UnityEngine.Object.DestroyImmediate(child.gameObject);
+                removed++;
+                continue;
+            }
+
+            removed += ClearBreakThroughChoiceIconsRecursive(child);
+        }
+
+        return removed;
+    }
+
+    static bool IsBreakThroughChoiceClone(GameObject gameObject)
+    {
+        return string.Equals(gameObject.name, "BreakThroughChoiceIcon(Clone)", StringComparison.Ordinal);
     }
 
     static bool TryRefreshAuction()
@@ -341,6 +803,7 @@ public class Plugin : BasePlugin
         if (FindAuctionChoice(plot, "ShowAuctionItem") != null)
         {
             _pendingAuctionReroll = true;
+            ArmAuctionPluginProbe();
             bool exhibitVisible = IsAuctionExhibitVisible(plot);
             _pendingAuctionAwaitChooseClose = false;
             _pendingAuctionEnsureOpenRetries = 0;
@@ -784,6 +1247,7 @@ public class Plugin : BasePlugin
         }
         else
         {
+            MarkNextShowFromPlugin();
             plot.ShowAuctionItem();
         }
 
@@ -850,6 +1314,25 @@ public class Plugin : BasePlugin
             return false;
         }
 
+        AuctionController? auction = AuctionController.Instance;
+        string probeId = string.Empty;
+        if (_auctionProbePluginArmed)
+        {
+            probeId = _auctionProbePluginId;
+            _auctionProbePluginArmed = false;
+            SetActiveAuctionProbe(probeId, AuctionProbeSource.Plugin);
+        }
+
+        if (!string.IsNullOrEmpty(probeId))
+        {
+            string beforeCtx = GetAuctionChoiceContext(plot);
+            string beforeTemp = GetItemListSummary(plot.tempPlotShop);
+            string beforeStep = auction != null ? auction.auctionStep.ToString() : "null";
+            bool beforeChoose = IsAuctionChoosePanelActive();
+            int beforeIcons = CountActiveItemIcons();
+            Log.LogInfo($"[RisingFame] auction_probe_id={probeId} source=plugin phase={phase} pre ctx={beforeCtx} temp={beforeTemp} step={beforeStep} choose={beforeChoose} icons={beforeIcons}");
+        }
+
         bool invoked = false;
         SinglePlotChoiceData? choice = FindAuctionChoice(plot, "ShowAuctionItem");
         if (choice != null)
@@ -861,10 +1344,21 @@ public class Plugin : BasePlugin
         {
             try
             {
+                MarkNextShowFromPlugin();
                 plot.ShowAuctionItem();
                 invoked = true;
             }
             catch { }
+        }
+
+        if (!string.IsNullOrEmpty(probeId))
+        {
+            string afterCtx = GetAuctionChoiceContext(plot);
+            string afterTemp = GetItemListSummary(plot.tempPlotShop);
+            string afterStep = auction != null ? auction.auctionStep.ToString() : "null";
+            bool afterChoose = IsAuctionChoosePanelActive();
+            int afterIcons = CountActiveItemIcons();
+            Log.LogInfo($"[RisingFame] auction_probe_id={probeId} source=plugin phase={phase} post ctx={afterCtx} temp={afterTemp} step={afterStep} choose={afterChoose} icons={afterIcons} invoked={invoked}");
         }
 
         if (invoked)
@@ -1004,14 +1498,18 @@ public class Plugin : BasePlugin
 
     static bool IsAuctionPlotActive(PlotController instance)
     {
-        if (!IsPanelActive(instance.plotPanel)) return false;
-
-        return instance.tempPlotShop != null
+        bool hasToken = instance.tempPlotShop != null
             || ContainsAuctionToken(instance.nowPlot?.plotCallFuc)
             || ContainsAuctionToken(instance.nowPlot?.plotName)
             || ContainsAuctionToken(instance.nowSinglePlot?.clickCallFuc)
             || ContainsAuctionToken(instance.nowPlotText)
             || HasAuctionChoice(instance.nowSinglePlot);
+
+        if (!hasToken) return false;
+
+        if (IsPanelActive(instance.plotPanel)) return true;
+
+        return IsAuctionChoosePanelActive();
     }
 
     static bool ContainsAuctionToken(string? value)
@@ -1046,14 +1544,24 @@ public class Plugin : BasePlugin
     {
         if (plot.nowSinglePlot?.choices == null) return null;
 
+        SinglePlotChoiceData? fuzzy = null;
+
         for (int i = 0; i < plot.nowSinglePlot.choices.Count; i++)
         {
             SinglePlotChoiceData choice = plot.nowSinglePlot.choices[i];
-            if (string.Equals(choice.callFuc, callFuc, StringComparison.OrdinalIgnoreCase))
+            string? current = choice.callFuc;
+            if (string.Equals(current, callFuc, StringComparison.OrdinalIgnoreCase))
                 return choice;
+
+            if (fuzzy == null
+                && !string.IsNullOrWhiteSpace(current)
+                && current.Contains(callFuc, StringComparison.OrdinalIgnoreCase))
+            {
+                fuzzy = choice;
+            }
         }
 
-        return null;
+        return fuzzy;
     }
 
     static void PrepareAuctionChoiceContext(PlotController plot, SinglePlotChoiceData choice)
@@ -1067,6 +1575,9 @@ public class Plugin : BasePlugin
     {
         string callFuc = choice.callFuc ?? string.Empty;
         if (string.IsNullOrWhiteSpace(callFuc)) return false;
+
+        if (callFuc.IndexOf("ShowAuctionItem", StringComparison.OrdinalIgnoreCase) >= 0)
+            MarkNextShowFromPlugin();
 
         MethodInfo? noArg = AccessTools.Method(typeof(PlotController), callFuc, Type.EmptyTypes);
         if (noArg != null)
@@ -1202,6 +1713,195 @@ public class Plugin : BasePlugin
         string nowChoice = TryGetChoiceCall(plot, "nowChoice");
         string newChoice = TryGetChoiceCall(plot, "newChoice");
         return $"nowChoice={nowChoice} newChoice={newChoice}";
+    }
+
+    static object? TryGetMember(object target, string memberName)
+    {
+        try
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            Type type = target.GetType();
+
+            PropertyInfo? property = type.GetProperty(memberName, flags);
+            if (property != null && property.CanRead)
+                return property.GetValue(target);
+
+            FieldInfo? field = type.GetField(memberName, flags);
+            if (field != null)
+                return field.GetValue(target);
+        }
+        catch { }
+
+        return null;
+    }
+
+    static bool IsLikelyAuctionContext()
+    {
+        try
+        {
+            PlotController? plot = PlotController.Instance;
+            if (plot == null) return false;
+
+            if (plot.tempPlotShop != null)
+                return true;
+
+            if (ContainsAuctionToken(plot.nowPlot?.plotCallFuc)
+                || ContainsAuctionToken(plot.nowPlot?.plotName)
+                || ContainsAuctionToken(plot.nowSinglePlot?.clickCallFuc)
+                || ContainsAuctionToken(plot.nowPlotText)
+                || HasAuctionChoice(plot.nowSinglePlot))
+            {
+                return true;
+            }
+        }
+        catch { }
+
+        return false;
+    }
+
+    static bool IsLikelyAuctionItemList(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path)) return false;
+        return path.Contains("ChoosePanel", StringComparison.OrdinalIgnoreCase)
+            && path.Contains("ChooseItemList", StringComparison.OrdinalIgnoreCase);
+    }
+
+    static string DescribeItemListArgs(object[]? args)
+    {
+        if (args == null || args.Length == 0) return "none";
+
+        for (int i = 0; i < args.Length; i++)
+        {
+            object? arg = args[i];
+            if (arg is ItemListData itemList)
+                return $"ItemListData {GetItemListSummary(itemList)}";
+            if (arg is Il2CppSystem.Collections.Generic.List<ItemData> items)
+                return $"List<ItemData> {GetItemListSummary(items)}";
+        }
+
+        return $"args={args.Length}";
+    }
+
+    static string DescribeItemListMember(ItemListController list)
+    {
+        object? value = TryGetMember(list, "itemListData")
+            ?? TryGetMember(list, "itemList")
+            ?? TryGetMember(list, "itemDataList")
+            ?? TryGetMember(list, "itemListDatas");
+
+        if (value is ItemListData itemList)
+            return GetItemListSummary(itemList);
+        if (value is Il2CppSystem.Collections.Generic.List<ItemData> items)
+            return GetItemListSummary(items);
+
+        return "unknown";
+    }
+
+    internal static void LogAuctionEntry(MethodBase method, string phase)
+    {
+        if (!ShouldLogProbeAny())
+            return;
+
+        if (!TryActivateProbeFromAny($"AuctionController.{method.Name}"))
+            return;
+
+        if (!IsActiveProbe(_auctionProbeActiveSource))
+        {
+            ClearActiveAuctionProbe();
+            return;
+        }
+
+        string id = _auctionProbeActiveId;
+        string source = _auctionProbeActiveSource == AuctionProbeSource.Plugin ? "plugin" : "natural";
+        AuctionController? auction = AuctionController.Instance;
+        string step = auction != null ? auction.auctionStep.ToString() : "null";
+        Log.LogInfo($"[RisingFame] auction_probe_id={id} source={source} auction {phase} method={method.Name} step={step}");
+    }
+
+    internal static void LogItemListEntry(ItemListController list, MethodBase method, object[]? args, string phase)
+    {
+        if (!ShouldLogProbeAny())
+            return;
+
+        string path = GetTransformPath(list.transform);
+        if (!IsLikelyAuctionItemList(path) && !IsLikelyAuctionContext())
+            return;
+
+        if (!TryActivateProbeFromAny($"ItemListController.{method.Name}"))
+            return;
+
+        if (!IsActiveProbe(_auctionProbeActiveSource))
+        {
+            ClearActiveAuctionProbe();
+            return;
+        }
+
+        string id = _auctionProbeActiveId;
+        string source = _auctionProbeActiveSource == AuctionProbeSource.Plugin ? "plugin" : "natural";
+        string argSummary = DescribeItemListArgs(args);
+        string memberSummary = DescribeItemListMember(list);
+        Log.LogInfo($"[RisingFame] auction_probe_id={id} source={source} itemlist {phase} method={method.Name} path={path} args={argSummary} member={memberSummary}");
+    }
+
+    internal static void LogAuctionProbeShow(PlotController plot, AuctionProbeSource source)
+    {
+        bool activated = TryActivateProbe(source, $"ShowAuctionItem({source})");
+        if (!activated && !IsActiveProbe(source))
+            return;
+
+        string id = _auctionProbeActiveId;
+        string sourceLabel = source == AuctionProbeSource.Plugin ? "plugin" : "natural";
+        AuctionController? auction = AuctionController.Instance;
+        string step = auction != null ? auction.auctionStep.ToString() : "null";
+        bool choose = IsAuctionChoosePanelActive();
+        int icons = CountActiveItemIcons();
+        Log.LogInfo($"[RisingFame] auction_probe_id={id} source={sourceLabel} show pre ctx={GetAuctionChoiceContext(plot)} temp={GetItemListSummary(plot.tempPlotShop)} step={step} choose={choose} icons={icons}");
+    }
+
+    internal static void LogAuctionProbeShowPost(PlotController plot)
+    {
+        if (string.IsNullOrWhiteSpace(_auctionProbeActiveId))
+            return;
+
+        if (!IsActiveProbe(_auctionProbeActiveSource))
+        {
+            ClearActiveAuctionProbe();
+            return;
+        }
+
+        string id = _auctionProbeActiveId;
+        string source = _auctionProbeActiveSource == AuctionProbeSource.Plugin ? "plugin" : "natural";
+        AuctionController? auction = AuctionController.Instance;
+        string step = auction != null ? auction.auctionStep.ToString() : "null";
+        bool choose = IsAuctionChoosePanelActive();
+        int icons = CountActiveItemIcons();
+        Log.LogInfo($"[RisingFame] auction_probe_id={id} source={source} show post ctx={GetAuctionChoiceContext(plot)} temp={GetItemListSummary(plot.tempPlotShop)} step={step} choose={choose} icons={icons} generateSeen={_auctionProbeGenerateSeen}");
+    }
+
+    internal static void LogAuctionProbeGenerate(PlotController plot, ItemListData list, float shopLv, int itemNum, string phase)
+    {
+        if (string.IsNullOrWhiteSpace(_auctionProbeActiveId) && !TryActivateProbeFromAny("GenerateAuctionItem"))
+            return;
+
+        if (!IsActiveProbe(_auctionProbeActiveSource))
+        {
+            ClearActiveAuctionProbe();
+            return;
+        }
+
+        string id = _auctionProbeActiveId;
+        string source = _auctionProbeActiveSource == AuctionProbeSource.Plugin ? "plugin" : "natural";
+
+        if (phase == "pre")
+        {
+            _auctionProbeGenerateSeen = true;
+            MaybeLogProbeStack(id);
+        }
+
+        Log.LogInfo($"[RisingFame] auction_probe_id={id} source={source} generate {phase} pool={GetItemListSummary(list)} shopLv={shopLv:0.##} itemNum={itemNum} ctx={GetAuctionChoiceContext(plot)}");
+
+        if (phase == "post")
+            ClearActiveAuctionProbe();
     }
 
     static string TryGetChoiceCall(PlotController plot, string memberName)
@@ -1450,6 +2150,7 @@ static class AuctionTracePatches
     public static void GenerateAuctionItem_Pre(PlotController __instance, ItemListData __0, float __1, Il2CppSystem.Collections.Generic.List<int> __2, int __3)
     {
         Plugin.CacheAuctionGenerate(__0, __1, __2, __3);
+        Plugin.LogAuctionProbeGenerate(__instance, __0, __1, __3, "pre");
         if (Plugin.ShouldTraceAuctionRefresh())
             Plugin.Log.LogInfo($"[RisingFame] Auction generate pre pool={Plugin.GetItemListSummary(__0)} shopLv={__1:0.##} itemNum={__3} ctx={Plugin.GetAuctionChoiceContext(__instance)}");
     }
@@ -1457,6 +2158,7 @@ static class AuctionTracePatches
     public static void GenerateAuctionItem_Post(PlotController __instance, ItemListData __0, float __1, Il2CppSystem.Collections.Generic.List<int> __2, int __3)
     {
         Plugin.MarkAuctionGenerated();
+        Plugin.LogAuctionProbeGenerate(__instance, __0, __1, __3, "post");
         if (Plugin.ShouldTraceAuctionRefresh())
             Plugin.Log.LogInfo($"[RisingFame] Auction generate post pool={Plugin.GetItemListSummary(__0)} shopLv={__1:0.##} itemNum={__3} ctx={Plugin.GetAuctionChoiceContext(__instance)}");
     }
@@ -1464,14 +2166,61 @@ static class AuctionTracePatches
     public static void ShowAuctionItem_Pre(PlotController __instance)
     {
         Plugin.PreparePendingAuctionReroll(__instance);
+        Plugin.AuctionProbeSource source = Plugin.ConsumeNextShowSource();
+        if (source == Plugin.AuctionProbeSource.None)
+            source = Plugin.AuctionProbeSource.Natural;
+        Plugin.LogAuctionProbeShow(__instance, source);
         if (Plugin.ShouldTraceAuctionRefresh())
             Plugin.Log.LogInfo($"[RisingFame] ShowAuctionItem pre pool={Plugin.GetItemListSummary(__instance.tempPlotShop)} ctx={Plugin.GetAuctionChoiceContext(__instance)}");
     }
 
     public static void ShowAuctionItem_Post(PlotController __instance)
     {
+        Plugin.LogAuctionProbeShowPost(__instance);
         if (Plugin.ShouldTraceAuctionRefresh())
             Plugin.Log.LogInfo($"[RisingFame] ShowAuctionItem post pool={Plugin.GetItemListSummary(__instance.tempPlotShop)} ctx={Plugin.GetAuctionChoiceContext(__instance)}");
+    }
+}
+
+[HarmonyPatch]
+static class BreakThroughTracePatches
+{
+    public static void ShowItemParticle3_Pre(ref float __2)
+    {
+        Plugin.AccelerateBreakThroughShowItemParticle(ref __2);
+    }
+
+    public static void ShowItemParticle5_Pre(ref float __2, ref float __3)
+    {
+        Plugin.AccelerateBreakThroughShowItemParticle(ref __2, ref __3);
+    }
+}
+
+[HarmonyPatch]
+static class AuctionEntryTracePatches
+{
+    public static void AuctionEntry_Pre(AuctionController __instance, MethodBase __originalMethod)
+    {
+        Plugin.LogAuctionEntry(__originalMethod, "pre");
+    }
+
+    public static void AuctionEntry_Post(AuctionController __instance, MethodBase __originalMethod)
+    {
+        Plugin.LogAuctionEntry(__originalMethod, "post");
+    }
+}
+
+[HarmonyPatch]
+static class ItemListTracePatches
+{
+    public static void ItemList_Pre(ItemListController __instance, MethodBase __originalMethod, object[] __args)
+    {
+        Plugin.LogItemListEntry(__instance, __originalMethod, __args, "pre");
+    }
+
+    public static void ItemList_Post(ItemListController __instance, MethodBase __originalMethod, object[] __args)
+    {
+        Plugin.LogItemListEntry(__instance, __originalMethod, __args, "post");
     }
 }
 

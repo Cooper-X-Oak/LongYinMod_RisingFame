@@ -106,6 +106,10 @@
 > [!TIP]
 > 锻造刷新只在“三选一结果界面”生效，不会重新扣钱，也不会再走一轮打造耗时。
 
+> [!IMPORTANT]
+> `v1.8.16` 起，突破刷新会先在突破原生槽位里清理旧的 `BreakThroughChoiceIcon(Clone)`，再重新调用原生展示入口。  
+> 这样既能避免旧按钮叠层、点击落到旧结果，也不会再误碰共享 `ChoosePanel / ChooseItemList` 容器，从而规避旧版本里“突破刷新后再打开阅读武学界面空白”的回归问题。
+
 - 技术说明：[doc/refresh-implementation-notes.md](./doc/refresh-implementation-notes.md)
 - 拍卖专项复盘：[doc/auction-refresh-retrospective.md](./doc/auction-refresh-retrospective.md)
 
@@ -163,6 +167,17 @@
 1. `BepInEx/LogOutput.log`
 2. 游戏根目录截图
 3. 你下载的 `BepInEx` 压缩包完整文件名
+
+### [06.4] 突破刷新后，再打开阅读武学界面变空白
+
+如果你遇到的是“`Alt+R` 刷新突破后，再打开阅读武学界面一片空白”，直接升级到 `v1.8.16` 或更高版本。  
+这类问题来自旧版突破刷新时误动了共享选择容器；当前实现已经改成只清理突破槽位中的旧 `BreakThroughChoiceIcon(Clone)`，不再去删读书界面共用的 `ChoosePanel` 内容。
+
+如果刷新日志里出现：
+
+- `BreakThrough refresh cleared icons removed=...`
+
+说明这次刷新前的旧层清理已经生效。
 
 ---
 

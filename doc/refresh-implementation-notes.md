@@ -1,6 +1,6 @@
 ﻿# 一键刷新功能逆向与实现说明
 
-更新时间：`2026-03-26`
+更新时间：`2026-03-27`
 
 ## [01] 目的
 
@@ -246,12 +246,14 @@
 
 ### 3. 突破词条刷新
 
-最终逻辑：
+当前稳定实现（`v1.8.16`）：
 
 1. `BreakThroughController.Instance != null`
 2. `instance.breakThroughPanel.activeInHierarchy`
 3. `instance.targetSkill != null`
-4. 调用：
+4. 刷新前，只清理突破原生槽位下残留的 `BreakThroughChoiceIcon(Clone)`
+5. 仅对本次刷新临时缩短原生展示粒子时长
+6. 调用：
    - `StartShowBreakChoice()`
    - `RefreshExtraRateInfo()`
 
@@ -259,6 +261,16 @@
 
 - 复用了原生词条展示入口
 - 刷新后还能同步额外概率 / 加成信息
+- 只清理突破界面自身的旧 clone，不会误删共享 `ChoosePanel / ChooseItemList`
+- 解决了“旧 icon 叠层”和“刷新后再打开阅读武学界面空白”这两个同源问题
+
+为什么这次要多做“只清 clone”这一步：
+
+- 运行态日志已经明确看到 `BreakThroughIconPos` 下会出现成对的 `BreakThroughChoiceIcon(Clone)`，一个可见、一个隐藏
+- 这说明旧 icon 没有被销毁，只是被留在原位，继续叠在新的按钮下面
+- 如果只重跑展示入口而不先清理旧 clone，就会同时留下 UI 叠层和“点到旧结果”的风险
+- 更早那种“顺手清共享选择容器”的做法虽然能暂时看起来更干净，但会误伤阅读武学等共用 `ChooseController` 路径
+- 因此最终收口回到了更小、更原生的范围：只清突破槽位里的旧 clone，再走原生刷新入口
 
 ### 4. 拍卖刷新
 
