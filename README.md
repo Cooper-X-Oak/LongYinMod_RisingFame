@@ -157,6 +157,24 @@
 先不要放 `RisingFame.dll`。  
 如果只装固定版本的 BepInEx 仍然打不开，问题通常在 BepInEx 环境本身：版本错误、架构错误，或者目录里混有旧文件。
 
+如果表现是：
+
+- 只装 `BepInEx 6 IL2CPP x64` 就启动闪退
+- 错误里出现 `Attempted to read or write protected memory`
+- 删除 `BepInEx` 后游戏又能正常进入
+
+这更像是 BepInEx / Il2CppInterop 在部分 IL2CPP / Unity 版本上的已知兼容问题，而不是 `RisingFame.dll` 本身导致。  
+可以先尝试编辑 `BepInEx/config/BepInEx.cfg`，把 `[Logging]` 下的：
+
+- `UnityLogListening = false`
+
+保存后再重新启动游戏。
+
+这个 workaround 与当前仓库的 [Issue #1](https://github.com/Cooper-X-Oak/LongYinMod_RisingFame/issues/1) 用户回报一致，也和 BepInEx 官方仓库的已知问题相符：
+
+- [BepInEx #474](https://github.com/BepInEx/BepInEx/issues/474)
+- [BepInEx #744](https://github.com/BepInEx/BepInEx/issues/744)
+
 ### [06.2] 放入 DLL 后不生效或进不去
 
 先确认 `BepInEx/LogOutput.log` 里有插件加载信息，并确保 `BepInEx/plugins/` 里只有当前版本的 `RisingFame.dll`。  
