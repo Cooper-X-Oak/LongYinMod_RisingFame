@@ -11,7 +11,7 @@
 ![Runtime](https://img.shields.io/badge/runtime-Unity%20IL2CPP-ffb000)
 ![BepInEx](https://img.shields.io/badge/BepInEx-6.0.0--be.755%2B3fab71a-6f42c1)
 
-当前版本：1.8.x（含 1.8.15）
+当前版本：1.8.x（含 1.8.16）
 
 [下载发布版](https://github.com/Cooper-X-Oak/LongYinMod_RisingFame/releases/latest) | [更新记录](./CHANGELOG.md) | [贡献说明](./CONTRIBUTING.md) | [问题反馈](https://github.com/Cooper-X-Oak/LongYinMod_RisingFame/issues/new/choose)
 
