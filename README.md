@@ -274,16 +274,22 @@
 │  ├─ 原生控制器入口
 │  ├─ 最终实现路径
 │  └─ 未来启发
-└─ [07.3.2] 拍卖刷新复盘与工程教训
-   ├─ 问题时间线
-   ├─ 当前稳定方案
-   ├─ 工程教训
-   └─ 可复用流程
+├─ [07.3.2] 拍卖刷新复盘与工程教训
+│  ├─ 问题时间线
+│  ├─ 当前稳定方案
+│  ├─ 工程教训
+│  └─ 可复用流程
+└─ [07.3.3] 拍卖刷新断点研究
+   ├─ 判断标准
+   ├─ 动态验证步骤
+   ├─ P0 验证建议
+   └─ 当前最保守结论
 </pre>
 
-- 主文档：[一键刷新功能逆向与实现说明](./doc/refresh-implementation-notes.md)、[拍卖刷新复盘与工程教训](./doc/auction-refresh-retrospective.md)
+- 主文档：[一键刷新功能逆向与实现说明](./doc/refresh-implementation-notes.md)、[拍卖刷新复盘与工程教训](./doc/auction-refresh-retrospective.md)、[拍卖刷新断点研究](./doc/auction-reroll-breakpoint-study.md)
 - 直达章节：[初版失败现象](./doc/refresh-implementation-notes.md#refresh-first-failure) / [原生控制器入口](./doc/refresh-implementation-notes.md#refresh-native-controllers) / [最终实现路径](./doc/refresh-implementation-notes.md#refresh-final-path) / [未来启发](./doc/refresh-implementation-notes.md#refresh-future)
 - 直达章节：[问题时间线](./doc/auction-refresh-retrospective.md#auction-retro-timeline) / [当前稳定方案](./doc/auction-refresh-retrospective.md#auction-retro-current) / [工程教训](./doc/auction-refresh-retrospective.md#auction-retro-lessons) / [可复用流程](./doc/auction-refresh-retrospective.md#auction-retro-playbook)
+- 补充入口：[拍卖刷新断点研究](./doc/auction-reroll-breakpoint-study.md) 用于保留 `v1.8.15` 阶段的断点验证清单、探针设计与未收口前的判断标准
 
 </details>
 

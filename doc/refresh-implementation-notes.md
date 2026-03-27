@@ -9,6 +9,7 @@
 相关补充：
 
 - 如果你想看拍卖“查看展品”这条链路从误判、探针、时序试错到最终稳定方案的完整复盘，请继续看：[拍卖刷新复盘与工程教训](./auction-refresh-retrospective.md)
+- 如果你想看 `v1.8.15` 阶段为了判断拍卖 reroll 到底卡在哪一层而整理出的断点、探针和验证清单，请继续看：[拍卖刷新断点研究](./auction-reroll-breakpoint-study.md)
 
 这次工作的目标很明确：
 
@@ -290,6 +291,7 @@
 拍卖这部分的完整逆向、误判与时序复盘已单独整理在：
 
 - [拍卖刷新复盘与工程教训](./auction-refresh-retrospective.md)
+- [拍卖刷新断点研究](./auction-reroll-breakpoint-study.md)
 
 ### 5. 锻造刷新
 
